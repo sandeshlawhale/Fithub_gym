@@ -137,7 +137,7 @@ export default function MembersTableControls({ plans }: MembersTableControlsProp
     plans.find((p) => p.id === planId)?.name ?? "Plan";
 
   return (
-    <div className="p-lg border-b border-outline-variant flex flex-col md:flex-row gap-md items-center justify-between bg-surface-container-lowest">
+    <div className="p-lg border-b border-outline-variant flex flex-col md:flex-row gap-md items-center justify-between bg-surface-container-lowest rounded-t-xl">
       {/* Search Input */}
       <div className="relative w-full md:w-80 h-10 flex items-center rounded-lg bg-surface border border-outline-variant focus-within:border-primary transition-colors">
         <Search className="text-on-surface-variant ml-sm w-5 h-5 shrink-0" />
