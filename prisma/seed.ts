@@ -48,13 +48,16 @@ async function main() {
   const plansCount = await prisma.membershipPlan.count();
   if (plansCount === 0) {
     const defaultPlans = [
-      { name: 'Monthly Single', memberType: MemberType.SINGLE, durationMonths: 1, price: 1500.00, description: 'Single member 1-month plan' },
-      { name: 'Quarterly Single', memberType: MemberType.SINGLE, durationMonths: 3, price: 4000.00, description: 'Single member 3-month plan' },
-      { name: 'Half Yearly Single', memberType: MemberType.SINGLE, durationMonths: 6, price: 7000.00, description: 'Single member 6-month plan' },
-      { name: 'Yearly Single', memberType: MemberType.SINGLE, durationMonths: 12, price: 12000.00, description: 'Single member 1-year plan' },
-      { name: 'Monthly Couple', memberType: MemberType.COUPLE, durationMonths: 1, price: 2800.00, description: 'Couple 1-month plan' },
-      { name: 'Quarterly Couple', memberType: MemberType.COUPLE, durationMonths: 3, price: 7500.00, description: 'Couple 3-month plan' },
-      { name: 'Yearly Couple', memberType: MemberType.COUPLE, durationMonths: 12, price: 22000.00, description: 'Couple 1-year plan' },
+      { name: 'Monthly Single (Weight)', memberType: MemberType.SINGLE, durationMonths: 1, price: 599.00, description: 'Single member 1-month plan' },
+      { name: 'Monthly Single (Weight + Cardio)', memberType: MemberType.SINGLE, durationMonths: 1, price: 999.00, description: 'Single member 1-month plan' },
+      { name: 'Quarterly Single (Weight)', memberType: MemberType.SINGLE, durationMonths: 3, price: 1599.00, description: 'Single member 3-month plan' },
+      { name: 'Quarterly Single (Weight + Cardio)', memberType: MemberType.SINGLE, durationMonths: 3, price: 2799.00, description: 'Single member 3-month plan' },
+      { name: 'Half Yearly Single (Weight)', memberType: MemberType.SINGLE, durationMonths: 6, price: 3299.00, description: 'Single member 6-month plan' },
+      { name: 'Half Yearly Single (Weight + Cardio)', memberType: MemberType.SINGLE, durationMonths: 6, price: 5699.00, description: 'Single member 6-month plan' },
+      { name: 'Yearly Single (Weight)', memberType: MemberType.SINGLE, durationMonths: 12, price: 6799.00, description: 'Single member 1-year plan' },
+      { name: 'Yearly Single (Weight + Cardio)', memberType: MemberType.SINGLE, durationMonths: 12, price: 11599.00, description: 'Single member 1-year plan' },
+      { name: 'Monthly Couple (weight)', memberType: MemberType.COUPLE, durationMonths: 1, price: 1099.00, description: 'Couple 1-month plan' },
+      { name: 'Monthly Couple (Weight + Cardio)', memberType: MemberType.COUPLE, durationMonths: 1, price: 1799.00, description: 'Couple 1-month plan' },
     ];
 
     for (const plan of defaultPlans) {

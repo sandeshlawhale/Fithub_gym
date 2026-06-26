@@ -4,12 +4,12 @@ import { prisma } from "@/lib/prisma";
 import MembersTableControls from "./MembersTableControls";
 import MemberTableRow from "./MemberTableRow";
 
-import { 
-  UserPlus, 
-  Eye, 
-  Edit, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  UserPlus,
+  Eye,
+  Edit,
+  ChevronLeft,
+  ChevronRight,
   AlertTriangle,
   CheckCircle,
   HelpCircle,
@@ -60,11 +60,11 @@ export default async function MembersPage({ searchParams }: PageProps) {
         <div>
           <h2 className="font-display text-4xl font-extrabold text-on-background uppercase tracking-tight">Members</h2>
           <p className="font-body-md text-body-md text-on-surface-variant mt-sm max-w-2xl">
-            Manage your elite roster, track membership statuses, and maintain peak performance across all facilities.
+            Manage your Members, track membership statuses, and maintain peak performance.
           </p>
         </div>
-        <Link 
-          href="/admin/members/new" 
+        <Link
+          href="/admin/members/new"
           className="bg-primary-container text-on-primary-container font-label-md text-label-md font-bold px-lg py-md rounded-xl flex items-center gap-sm active:scale-95 transition-transform shrink-0 cursor-pointer hover:bg-primary"
         >
           <UserPlus className="w-[20px] h-[20px]" />
@@ -115,24 +115,22 @@ export default async function MembersPage({ searchParams }: PageProps) {
                       <span className="text-on-background">{member.planName}</span>
                     </td>
                     <td className="py-md px-lg">
-                      <span className={`inline-flex items-center gap-xs px-sm py-xs rounded-full border text-xs font-semibold whitespace-nowrap ${
-                        member.status === "ACTIVE"
-                          ? "border-primary text-primary bg-primary/10"
-                          : member.status === "UPCOMING"
+                      <span className={`inline-flex items-center gap-xs px-sm py-xs rounded-full border text-xs font-semibold whitespace-nowrap ${member.status === "ACTIVE"
+                        ? "border-primary text-primary bg-primary/10"
+                        : member.status === "UPCOMING"
                           ? "border-primary-container text-primary-container bg-primary-container/10"
                           : member.status === "EXPIRED"
-                          ? "border-error text-error bg-error/10"
-                          : "border-outline-variant text-on-surface-variant bg-surface-container"
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          member.status === "ACTIVE" 
-                            ? "bg-primary" 
-                            : member.status === "UPCOMING"
+                            ? "border-error text-error bg-error/10"
+                            : "border-outline-variant text-on-surface-variant bg-surface-container"
+                        }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${member.status === "ACTIVE"
+                          ? "bg-primary"
+                          : member.status === "UPCOMING"
                             ? "bg-primary-container"
                             : member.status === "EXPIRED"
-                            ? "bg-error"
-                            : "bg-on-surface-variant"
-                        }`}></span>
+                              ? "bg-error"
+                              : "bg-on-surface-variant"
+                          }`}></span>
                         {member.status}
                       </span>
                     </td>
@@ -158,24 +156,22 @@ export default async function MembersPage({ searchParams }: PageProps) {
             <div className="flex items-center gap-xs">
               <Link
                 href={`/admin/members?page=${prevPage}&search=${search}&status=${status}&planId=${planId}`}
-                className={`w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors ${
-                  page === 1 ? "pointer-events-none opacity-50" : ""
-                }`}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors ${page === 1 ? "pointer-events-none opacity-50" : ""
+                  }`}
               >
                 <ChevronLeft className="w-[18px] h-[18px]" />
               </Link>
-              
+
               {Array.from({ length: result.totalPages }, (_, idx) => idx + 1).map((p) => {
                 const isCurrent = p === page;
                 return (
                   <Link
                     key={p}
                     href={`/admin/members?page=${p}&search=${search}&status=${status}&planId=${planId}`}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg font-label-md font-bold transition-colors ${
-                      isCurrent
-                        ? "bg-primary-container text-on-primary-container"
-                        : "border border-outline-variant text-on-surface-variant hover:bg-surface-container-high"
-                    }`}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg font-label-md font-bold transition-colors ${isCurrent
+                      ? "bg-primary-container text-on-primary-container"
+                      : "border border-outline-variant text-on-surface-variant hover:bg-surface-container-high"
+                      }`}
                   >
                     {p}
                   </Link>
@@ -184,9 +180,8 @@ export default async function MembersPage({ searchParams }: PageProps) {
 
               <Link
                 href={`/admin/members?page=${nextPage}&search=${search}&status=${status}&planId=${planId}`}
-                className={`w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors ${
-                  page === result.totalPages ? "pointer-events-none opacity-50" : ""
-                }`}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors ${page === result.totalPages ? "pointer-events-none opacity-50" : ""
+                  }`}
               >
                 <ChevronRight className="w-[18px] h-[18px]" />
               </Link>

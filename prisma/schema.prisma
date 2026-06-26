@@ -104,6 +104,7 @@ model MembershipPlan {
   durationMonths Int
   price          Decimal      @db.Decimal(10, 2)
   isActive       Boolean      @default(true)
+  isDeleted      Boolean      @default(false)
   description    String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt

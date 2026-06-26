@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function NewMemberPage() {
   // Fetch active plans to pass to form
   const activePlans = await prisma.membershipPlan.findMany({
-    where: { isActive: true },
+    where: { isActive: true, isDeleted: false },
     select: {
       id: true,
       name: true,

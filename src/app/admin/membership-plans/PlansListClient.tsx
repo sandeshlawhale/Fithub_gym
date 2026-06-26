@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { createPlanAction, togglePlanAction, deletePlanAction } from "@/features/plans/actions";
+import { createPlanAction, togglePlanAction, deletePlanAction, updatePlanAction } from "@/features/plans/actions";
 import { MemberType } from "@prisma/client";
-import { Plus, Check, ToggleLeft, ToggleRight, Trash2, Eye, ShieldAlert, X } from "lucide-react";
+import { Plus, ToggleLeft, ToggleRight, Trash2, X, Pencil } from "lucide-react";
 
 interface Plan {
   id: string;
@@ -21,6 +21,7 @@ interface PlansListClientProps {
 
 export default function PlansListClient({ plans }: PlansListClientProps) {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,37 +29,68 @@ export default function PlansListClient({ plans }: PlansListClientProps) {
   const singlePlans = plans.filter(p => p.memberType === MemberType.SINGLE);
   const couplePlans = plans.filter(p => p.memberType === MemberType.COUPLE);
 
-  // New plan form state
+  // Form state
   const [name, setName] = useState("");
   const [type, setType] = useState<MemberType>(MemberType.SINGLE);
   const [duration, setDuration] = useState(1);
   const [price, setPrice] = useState(0);
   const [description, setDescription] = useState("");
 
-  const handleCreatePlan = async (e: React.FormEvent) => {
+  const handleEditClick = (plan: Plan) => {
+    setEditingPlan(plan);
+    setName(plan.name);
+    setType(plan.memberType);
+    setDuration(plan.durationMonths);
+    setPrice(Number(plan.price));
+    setDescription(plan.description || "");
+    setShowAddModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowAddModal(false);
+    setEditingPlan(null);
+    setName("");
+    setType(MemberType.SINGLE);
+    setDuration(1);
+    setPrice(0);
+    setDescription("");
+    setError(null);
+  };
+
+  const handleSavePlan = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      const res = await createPlanAction({
-        name,
-        memberType: type,
-        durationMonths: duration,
-        price,
-        description,
-      });
+      if (editingPlan) {
+        const res = await updatePlanAction(editingPlan.id, {
+          name,
+          memberType: type,
+          durationMonths: duration,
+          price,
+          description,
+        });
 
-      if (res.error) {
-        setError(res.error);
+        if (res.error) {
+          setError(res.error);
+        } else {
+          handleCloseModal();
+        }
       } else {
-        setShowAddModal(false);
-        // Reset form
-        setName("");
-        setType(MemberType.SINGLE);
-        setDuration(1);
-        setPrice(0);
-        setDescription("");
+        const res = await createPlanAction({
+          name,
+          memberType: type,
+          durationMonths: duration,
+          price,
+          description,
+        });
+
+        if (res.error) {
+          setError(res.error);
+        } else {
+          handleCloseModal();
+        }
       }
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
@@ -89,8 +121,11 @@ export default function PlansListClient({ plans }: PlansListClientProps) {
           <h2 className="font-display text-4xl font-extrabold text-on-background uppercase tracking-tight">Membership Plans</h2>
           <p className="font-body-md text-body-md text-on-surface-variant mt-sm">Manage tiers, pricing, and access controls.</p>
         </div>
-        <button 
-          onClick={() => setShowAddModal(true)}
+        <button
+          onClick={() => {
+            setEditingPlan(null);
+            setShowAddModal(true);
+          }}
           className="bg-primary-container text-on-primary-container font-label-md text-label-md font-bold px-lg py-sm rounded-xl flex items-center gap-sm hover:bg-primary transition-colors cursor-pointer"
         >
           <Plus className="w-5 h-5" />
@@ -102,123 +137,187 @@ export default function PlansListClient({ plans }: PlansListClientProps) {
       <div className="flex flex-col gap-xl">
         {/* Individual Plans */}
         <div>
-          <h3 className="font-headline-md text-xl font-bold text-white border-b border-outline-variant pb-sm mb-lg">Individual Plans</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
-            {singlePlans.length === 0 ? (
-              <p className="text-secondary text-sm">No individual plans configured.</p>
-            ) : (
-              singlePlans.map((plan) => (
-                <div 
-                  key={plan.id}
-                  className={`bg-[#181818] border rounded-xl p-lg flex flex-col relative group transition-colors ${
-                    plan.isActive ? "border-[#323232] hover:border-primary-container" : "border-error/20 opacity-60"
-                  }`}
-                >
-                  <div className="absolute top-md right-md opacity-0 group-hover:opacity-100 transition-opacity flex gap-sm">
-                    <button 
-                      onClick={() => handleToggleActive(plan.id, plan.isActive)}
-                      className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface hover:text-primary transition-colors cursor-pointer" 
-                      title={plan.isActive ? "Deactivate" : "Activate"}
-                    >
-                      {plan.isActive ? <ToggleRight className="w-5 h-5 text-primary" /> : <ToggleLeft className="w-5 h-5 text-secondary" />}
-                    </button>
-                    <button 
-                      onClick={() => handleDeletePlan(plan.id)}
-                      className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface hover:text-error transition-colors cursor-pointer" 
-                      title="Archive (Soft Delete)"
-                    >
-                      <Trash2 className="w-4 h-4 text-error" />
-                    </button>
-                  </div>
-                  
-                  <div className="mb-auto">
-                    <span className="font-label-sm text-xs text-primary-container uppercase tracking-wider">
-                      {plan.isActive ? "ACTIVE" : "INACTIVE"}
-                    </span>
-                    <h4 className="font-headline-md text-xl font-bold text-[#FFFFFF] mt-xs mb-sm">{plan.name}</h4>
-                    <div className="flex items-baseline gap-xs mb-md">
-                      <span className="text-3xl font-extrabold text-[#FFFFFF]">₹{Number(plan.price).toLocaleString("en-IN")}</span>
-                      <span className="font-body-md text-sm text-[#B3B3B3]">/ plan</span>
-                    </div>
-                    <p className="text-secondary text-sm min-h-[45px]">{plan.description || "No description provided."}</p>
-                  </div>
-
-                  <div className="mt-lg pt-md border-t border-[#323232] flex justify-between items-center text-xs text-[#B3B3B3]">
-                    <span>Duration: {plan.durationMonths} {plan.durationMonths === 1 ? 'Month' : 'Months'}</span>
-                  </div>
-                </div>
-              ))
-            )}
+          <h3 className="font-headline-md text-xl font-bold text-white pb-sm">Individual Plans</h3>
+          <div className="bg-surface border border-outline-variant rounded-xl flex flex-col shadow-sm overflow-hidden w-full max-w-full">
+            <div className="overflow-x-auto w-full max-w-full">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-surface-container border-b border-outline-variant">
+                  <tr>
+                    <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Name</th>
+                    <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Duration</th>
+                    <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Price</th>
+                    <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold hidden md:table-cell">Description</th>
+                    <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant font-body-md text-sm bg-surface">
+                  {singlePlans.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-xl text-center text-on-surface-variant">
+                        No individual plans configured.
+                      </td>
+                    </tr>
+                  ) : (
+                    singlePlans.map((plan) => (
+                      <tr
+                        key={plan.id}
+                        className={`hover:bg-surface-container-lowest transition-colors ${!plan.isActive ? "opacity-60" : ""
+                          }`}
+                      >
+                        <td className="py-md px-lg font-semibold text-white">
+                          <div className="flex items-center gap-sm">
+                            <span>{plan.name}</span>
+                            {!plan.isActive && (
+                              <span className="text-[10px] bg-error-container/20 text-error px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                Inactive
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-md px-lg text-white">
+                          {plan.durationMonths} {plan.durationMonths === 1 ? 'Month' : 'Months'}
+                        </td>
+                        <td className="py-md px-lg text-white font-medium">
+                          ₹{Number(plan.price).toLocaleString("en-IN")}
+                        </td>
+                        <td className="py-md px-lg text-secondary text-sm hidden md:table-cell max-w-xs truncate">
+                          {plan.description || "No description provided."}
+                        </td>
+                        <td className="py-md px-lg text-right">
+                          <div className="flex justify-end gap-sm items-center">
+                            <button
+                              onClick={() => handleEditClick(plan)}
+                              className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface hover:text-primary transition-colors cursor-pointer"
+                              title="Edit Plan"
+                            >
+                              <Pencil className="w-4 h-4 text-primary" />
+                            </button>
+                            <button
+                              onClick={() => handleToggleActive(plan.id, plan.isActive)}
+                              className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface hover:text-primary transition-colors cursor-pointer"
+                              title={plan.isActive ? "Deactivate" : "Activate"}
+                            >
+                              {plan.isActive ? <ToggleRight className="w-5 h-5 text-primary" /> : <ToggleLeft className="w-5 h-5 text-secondary" />}
+                            </button>
+                            <button
+                              onClick={() => handleDeletePlan(plan.id)}
+                              className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface hover:text-error transition-colors cursor-pointer"
+                              title="Archive (Soft Delete)"
+                            >
+                              <Trash2 className="w-4 h-4 text-error" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
         {/* Couple Plans */}
         <div>
-          <h3 className="font-headline-md text-xl font-bold text-white border-b border-outline-variant pb-sm mb-lg">Couple Plans</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
-            {couplePlans.length === 0 ? (
-              <p className="text-secondary text-sm">No couple plans configured.</p>
-            ) : (
-              couplePlans.map((plan) => (
-                <div 
-                  key={plan.id}
-                  className={`bg-[#181818] border rounded-xl p-lg flex flex-col relative group transition-colors ${
-                    plan.isActive ? "border-[#323232] hover:border-primary-container" : "border-error/20 opacity-60"
-                  }`}
-                >
-                  <div className="absolute top-md right-md opacity-0 group-hover:opacity-100 transition-opacity flex gap-sm">
-                    <button 
-                      onClick={() => handleToggleActive(plan.id, plan.isActive)}
-                      className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface hover:text-primary transition-colors cursor-pointer" 
-                      title={plan.isActive ? "Deactivate" : "Activate"}
-                    >
-                      {plan.isActive ? <ToggleRight className="w-5 h-5 text-primary" /> : <ToggleLeft className="w-5 h-5 text-secondary" />}
-                    </button>
-                    <button 
-                      onClick={() => handleDeletePlan(plan.id)}
-                      className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface hover:text-error transition-colors cursor-pointer" 
-                      title="Archive (Soft Delete)"
-                    >
-                      <Trash2 className="w-4 h-4 text-error" />
-                    </button>
-                  </div>
-                  
-                  <div className="mb-auto">
-                    <span className="font-label-sm text-xs text-primary-container uppercase tracking-wider">
-                      {plan.isActive ? "ACTIVE" : "INACTIVE"}
-                    </span>
-                    <h4 className="font-headline-md text-xl font-bold text-[#FFFFFF] mt-xs mb-sm">{plan.name}</h4>
-                    <div className="flex items-baseline gap-xs mb-md">
-                      <span className="text-3xl font-extrabold text-[#FFFFFF]">₹{Number(plan.price).toLocaleString("en-IN")}</span>
-                      <span className="font-body-md text-sm text-[#B3B3B3]">/ plan</span>
-                    </div>
-                    <p className="text-secondary text-sm min-h-[45px]">{plan.description || "No description provided."}</p>
-                  </div>
-
-                  <div className="mt-lg pt-md border-t border-[#323232] flex justify-between items-center text-xs text-[#B3B3B3]">
-                    <span>Duration: {plan.durationMonths} {plan.durationMonths === 1 ? 'Month' : 'Months'}</span>
-                  </div>
-                </div>
-              ))
-            )}
+          <h3 className="font-headline-md text-xl font-bold text-white pb-sm">Couple Plans</h3>
+          <div className="bg-surface border border-outline-variant rounded-xl flex flex-col shadow-sm overflow-hidden w-full max-w-full">
+            <div className="overflow-x-auto w-full max-w-full">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-surface-container border-b border-outline-variant">
+                  <tr>
+                    <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Name</th>
+                    <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Duration</th>
+                    <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Price</th>
+                    <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold hidden md:table-cell">Description</th>
+                    <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant font-body-md text-sm bg-surface">
+                  {couplePlans.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-xl text-center text-on-surface-variant">
+                        No couple plans configured.
+                      </td>
+                    </tr>
+                  ) : (
+                    couplePlans.map((plan) => (
+                      <tr
+                        key={plan.id}
+                        className={`hover:bg-surface-container-lowest transition-colors ${!plan.isActive ? "opacity-60" : ""
+                          }`}
+                      >
+                        <td className="py-md px-lg font-semibold text-white">
+                          <div className="flex items-center gap-sm">
+                            <span>{plan.name}</span>
+                            {!plan.isActive && (
+                              <span className="text-[10px] bg-error-container/20 text-error px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                Inactive
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-md px-lg text-white">
+                          {plan.durationMonths} {plan.durationMonths === 1 ? 'Month' : 'Months'}
+                        </td>
+                        <td className="py-md px-lg text-white font-medium">
+                          ₹{Number(plan.price).toLocaleString("en-IN")}
+                        </td>
+                        <td className="py-md px-lg text-secondary text-sm hidden md:table-cell max-w-xs truncate">
+                          {plan.description || "No description provided."}
+                        </td>
+                        <td className="py-md px-lg text-right">
+                          <div className="flex justify-end gap-sm items-center">
+                            <button
+                              onClick={() => handleEditClick(plan)}
+                              className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface hover:text-primary transition-colors cursor-pointer"
+                              title="Edit Plan"
+                            >
+                              <Pencil className="w-4 h-4 text-primary" />
+                            </button>
+                            <button
+                              onClick={() => handleToggleActive(plan.id, plan.isActive)}
+                              className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface hover:text-primary transition-colors cursor-pointer"
+                              title={plan.isActive ? "Deactivate" : "Activate"}
+                            >
+                              {plan.isActive ? <ToggleRight className="w-5 h-5 text-primary" /> : <ToggleLeft className="w-5 h-5 text-secondary" />}
+                            </button>
+                            <button
+                              onClick={() => handleDeletePlan(plan.id)}
+                              className="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface hover:text-error transition-colors cursor-pointer"
+                              title="Archive (Soft Delete)"
+                            >
+                              <Trash2 className="w-4 h-4 text-error" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Add Plan Modal */}
+      {/* Add/Edit Plan Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-md">
           <div className="bg-[#181818] border border-[#323232] rounded-xl p-lg md:p-xl w-full max-w-md relative flex flex-col gap-lg animate-fade-in">
-            <button 
-              onClick={() => setShowAddModal(false)}
+            <button
+              onClick={handleCloseModal}
               className="absolute top-md right-md text-on-surface-variant hover:text-white"
             >
               <X className="w-6 h-6" />
             </button>
 
             <div>
-              <h3 className="font-display text-2xl font-bold text-white uppercase tracking-tight">Create New Plan</h3>
-              <p className="text-secondary text-sm mt-xs">Add a new pricing tier to the performance catalog.</p>
+              <h3 className="font-display text-2xl font-bold text-white uppercase tracking-tight">
+                {editingPlan ? "Edit Plan" : "Create New Plan"}
+              </h3>
+              <p className="text-secondary text-sm mt-xs">
+                {editingPlan ? "Update pricing tier details." : "Add a new pricing tier to the performance catalog."}
+              </p>
             </div>
 
             {error && (
@@ -227,24 +326,24 @@ export default function PlansListClient({ plans }: PlansListClientProps) {
               </div>
             )}
 
-            <form onSubmit={handleCreatePlan} className="flex flex-col gap-md">
+            <form onSubmit={handleSavePlan} className="flex flex-col gap-md">
               <div className="flex flex-col gap-xs">
                 <label className="input-label" htmlFor="planName">Plan Name</label>
-                <input 
-                  className="input-field h-[40px] text-sm py-2" 
-                  id="planName" 
-                  placeholder="e.g. Monthly Standard" 
+                <input
+                  className="input-field h-[40px] text-sm py-2"
+                  id="planName"
+                  placeholder="e.g. Monthly Standard"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  required 
+                  required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-sm">
                 <div className="flex flex-col gap-xs">
                   <label className="input-label" htmlFor="planType">Member Type</label>
-                  <select 
-                    className="input-field h-[40px] text-sm py-2 px-3 outline-none" 
+                  <select
+                    className="input-field h-[40px] text-sm py-2 px-3 outline-none"
                     id="planType"
                     value={type}
                     onChange={(e) => setType(e.target.value as MemberType)}
@@ -256,48 +355,48 @@ export default function PlansListClient({ plans }: PlansListClientProps) {
 
                 <div className="flex flex-col gap-xs">
                   <label className="input-label" htmlFor="planDuration">Duration (Months)</label>
-                  <input 
-                    className="input-field h-[40px] text-sm py-2" 
-                    id="planDuration" 
-                    type="number" 
-                    min={1} 
+                  <input
+                    className="input-field h-[40px] text-sm py-2"
+                    id="planDuration"
+                    type="number"
+                    min={1}
                     value={duration}
                     onChange={(e) => setDuration(Number(e.target.value))}
-                    required 
+                    required
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-xs">
                 <label className="input-label" htmlFor="planPrice">Price (₹)</label>
-                <input 
-                  className="input-field h-[40px] text-sm py-2" 
-                  id="planPrice" 
-                  type="number" 
-                  min={0} 
+                <input
+                  className="input-field h-[40px] text-sm py-2"
+                  id="planPrice"
+                  type="number"
+                  min={0}
                   value={price}
                   onChange={(e) => setPrice(Number(e.target.value))}
-                  required 
+                  required
                 />
               </div>
 
               <div className="flex flex-col gap-xs">
                 <label className="input-label" htmlFor="planDesc">Description</label>
-                <textarea 
-                  className="bg-[#181818] border border-[#323232] rounded-xl p-3 text-white placeholder:text-secondary focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors font-body-md text-sm resize-none h-20" 
-                  id="planDesc" 
-                  placeholder="Plan benefits..." 
+                <textarea
+                  className="bg-[#181818] border border-[#323232] rounded-xl p-3 text-white placeholder:text-secondary focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors font-body-md text-sm resize-none h-20"
+                  id="planDesc"
+                  placeholder="Plan benefits..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
 
-              <button 
+              <button
                 type="submit"
                 disabled={loading}
                 className="w-full bg-primary-container text-on-primary-container font-bold py-3 rounded-xl hover:bg-primary transition-all font-label-md text-sm cursor-pointer disabled:opacity-50"
               >
-                {loading ? "Creating..." : "Save Plan"}
+                {loading ? "Saving..." : editingPlan ? "Update Plan" : "Save Plan"}
               </button>
             </form>
           </div>

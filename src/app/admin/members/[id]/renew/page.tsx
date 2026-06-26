@@ -22,7 +22,7 @@ export default async function RenewMemberPage({ params }: PageProps) {
 
   // Fetch active plans
   const activePlans = await prisma.membershipPlan.findMany({
-    where: { isActive: true },
+    where: { isActive: true, isDeleted: false },
     select: {
       id: true,
       name: true,

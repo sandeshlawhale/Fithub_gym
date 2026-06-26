@@ -2,16 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MemberService } from "@/services/member.service";
 // import DeleteMemberButton from "./DeleteMemberButton";
-import { 
-  ArrowLeft, 
-  Edit, 
-  Plus, 
-  Calendar, 
-  Phone, 
-  Mail, 
-  User, 
-  MapPin, 
-  History, 
+import {
+  ArrowLeft,
+  Edit,
+  Plus,
+  Calendar,
+  Phone,
+  Mail,
+  User,
+  MapPin,
+  History,
   CreditCard,
   Heart,
   CheckCircle,
@@ -41,22 +41,22 @@ export default async function MemberDetailPage({ params }: PageProps) {
     <div className="flex flex-col gap-lg w-full pb-xl">
       {/* Back & Actions Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-md">
-        <Link 
-          href="/admin/members" 
+        <Link
+          href="/admin/members"
           className="text-on-surface-variant hover:text-on-surface flex items-center gap-xs font-label-md text-sm self-start"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Members
         </Link>
         <div className="flex gap-sm self-end sm:self-auto">
-          <Link 
+          <Link
             href={`/admin/members/${member.id}/renew`}
             className="bg-primary-container text-on-primary-container font-bold rounded-xl px-lg py-3 hover:bg-primary transition-all font-label-md text-sm flex items-center gap-xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Renew Membership
           </Link>
-          <Link 
+          <Link
             href={`/admin/members/${member.id}/edit`}
             className="border border-[#323232] text-white hover:bg-surface-container-high font-bold rounded-xl px-lg py-3 transition-colors font-label-md text-sm flex items-center gap-xs"
           >
@@ -72,43 +72,42 @@ export default async function MemberDetailPage({ params }: PageProps) {
         {/* Left Column: Member Card & Profile Details (7 columns) */}
         <div className="lg:col-span-7 flex flex-col gap-lg">
           {/* Profile Overview Card */}
-          <div className="bg-[#181818] border border-[#323232] rounded-xl p-xl flex flex-col md:flex-row gap-lg items-center md:items-start text-center md:text-left relative">
-            <div className="w-20 h-20 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-primary font-bold text-3xl uppercase shrink-0">
-              {member.firstName.substring(0, 1)}{member.lastName.substring(0, 1)}
-            </div>
-            
-            <div className="flex-grow flex flex-col gap-xs">
-              <span className={`inline-flex items-center gap-xs px-sm py-xs rounded-full border text-xs font-semibold self-center md:self-start ${
-                member.status === "ACTIVE"
-                  ? "border-primary text-primary bg-primary/10"
-                  : member.status === "UPCOMING"
-                  ? "border-primary-container text-primary-container bg-primary-container/10"
-                  : member.status === "EXPIRED"
-                  ? "border-error text-error bg-error/10"
-                  : "border-outline-variant text-on-surface-variant bg-surface-container"
-              }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${
-                  member.status === "ACTIVE" 
-                    ? "bg-primary" 
-                    : member.status === "UPCOMING"
-                    ? "bg-primary-container"
-                    : member.status === "EXPIRED"
-                    ? "bg-error"
-                    : "bg-on-surface-variant"
-                }`}></span>
-                {member.status}
-              </span>
-              <h1 className="text-3xl font-extrabold text-white mt-xs capitalize">{member.name}</h1>
-              <p className="text-on-surface-variant text-sm">Member ID: {member.id}</p>
-<p className="text-on-surface-variant text-sm">Join Date: {new Date(member.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
-            </div>
-          </div>
 
           {/* Detailed Info Card */}
           <div className="bg-[#181818] border border-[#323232] rounded-xl p-xl flex flex-col gap-lg">
             <h3 className="font-headline-md text-lg font-bold text-white border-b border-[#323232] pb-sm">
               Personal Information
             </h3>
+
+            <div className="flex flex-col md:flex-row gap-lg items-center md:items-start text-center md:text-left relative">
+              <div className="w-20 h-20 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-primary font-bold text-3xl uppercase shrink-0">
+                {member.firstName.substring(0, 1)}{member.lastName.substring(0, 1)}
+              </div>
+
+              <div className="flex-grow flex flex-col gap-xs">
+                <span className={`inline-flex items-center gap-xs px-sm py-xs rounded-full border text-xs font-semibold self-center md:self-start ${member.status === "ACTIVE"
+                  ? "border-primary text-primary bg-primary/10"
+                  : member.status === "UPCOMING"
+                    ? "border-primary-container text-primary-container bg-primary-container/10"
+                    : member.status === "EXPIRED"
+                      ? "border-error text-error bg-error/10"
+                      : "border-outline-variant text-on-surface-variant bg-surface-container"
+                  }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${member.status === "ACTIVE"
+                    ? "bg-primary"
+                    : member.status === "UPCOMING"
+                      ? "bg-primary-container"
+                      : member.status === "EXPIRED"
+                        ? "bg-error"
+                        : "bg-on-surface-variant"
+                    }`}></span>
+                  {member.status}
+                </span>
+                <h1 className="text-3xl font-extrabold text-white mt-xs capitalize">{member.name}</h1>
+                {/* <p className="text-on-surface-variant text-sm">Member ID: {member.id}</p> */}
+                <p className="text-on-surface-variant text-sm">Join Date: {new Date(member.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
               <div className="flex flex-col gap-xs">
@@ -188,7 +187,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
               <CreditCard className="w-12 h-12 text-[#F59E0B]/20" />
             </div>
             <span className="text-xs text-primary-container font-semibold uppercase tracking-widest">Active Membership</span>
-            
+
             {latestMembership ? (
               <div className="flex flex-col gap-md mt-sm">
                 <h2 className="text-2xl font-bold text-white">
@@ -221,14 +220,14 @@ export default async function MemberDetailPage({ params }: PageProps) {
                 <Heart className="w-12 h-12 text-[#F59E0B]/20" />
               </div>
               <span className="text-xs text-primary-container font-semibold uppercase tracking-widest">Couple Group Partner</span>
-              
+
               <div className="flex flex-col gap-sm mt-sm">
                 <h3 className="text-lg font-bold text-white">{partner.firstName} {partner.lastName}</h3>
                 <p className="text-secondary text-sm flex items-center gap-xs">
                   <Phone className="w-4 h-4" />
                   {partner.phone}
                 </p>
-                <Link 
+                <Link
                   href={`/admin/members/${partner.id}`}
                   className="text-primary font-label-md text-xs hover:underline mt-sm self-start"
                 >
@@ -244,7 +243,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
               <History className="w-5 h-5 text-primary" />
               Membership History
             </h3>
-            
+
             <div className="flex flex-col gap-sm max-h-[350px] overflow-y-auto mt-sm pr-xs">
               {member.memberships.length === 0 ? (
                 <p className="text-secondary text-sm text-center py-lg">No membership history available.</p>
@@ -255,13 +254,12 @@ export default async function MemberDetailPage({ params }: PageProps) {
                       <span className="text-white font-bold text-sm truncate max-w-[150px]">
                         {h.membershipPlan?.name || h.customPlanName || "Custom Plan"}
                       </span>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                        h.status === "ACTIVE"
-                          ? "bg-green-500/10 text-green-500 border-green-500/20"
-                          : h.status === "UPCOMING"
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${h.status === "ACTIVE"
+                        ? "bg-green-500/10 text-green-500 border-green-500/20"
+                        : h.status === "UPCOMING"
                           ? "bg-primary-container/10 text-primary-container border-primary-container/20"
                           : "bg-error/10 text-error border-error/20"
-                      }`}>
+                        }`}>
                         {h.status}
                       </span>
                     </div>

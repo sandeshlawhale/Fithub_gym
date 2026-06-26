@@ -4,6 +4,7 @@ import { MemberType } from "@prisma/client";
 export class PlanService {
   static async getPlans() {
     return prisma.membershipPlan.findMany({
+      where: { isDeleted: false },
       orderBy: [{ memberType: "asc" }, { price: "asc" }],
     });
   }
@@ -26,6 +27,7 @@ export class PlanService {
         price: data.price,
         description: data.description,
         isActive: true,
+        isDeleted: false,
       },
     });
   }
@@ -55,7 +57,7 @@ export class PlanService {
     // Business rule: Soft delete only. Never permanently delete plans already used.
     return prisma.membershipPlan.update({
       where: { id },
-      data: { isActive: false },
+      data: { isDeleted: true, isActive: false },
     });
   }
 }
