@@ -62,11 +62,11 @@ export default function RenewForm({ member, plans }: RenewFormProps) {
     defaultValues: {
       membershipPlanId: "",
       customPlanName: "",
+      customPlanDuration: 1,
       amount: 0,
       paymentMethod: PaymentMethod.UPI as PaymentMethod,
       paymentReference: "",
       startDate: defaultStartDateStr,
-      endDate: "",
       remarks: "",
     }
   });
@@ -77,18 +77,12 @@ export default function RenewForm({ member, plans }: RenewFormProps) {
   const handlePlanChange = (planId: string) => {
     if (!planId) {
       setValue("amount", 0);
-      setValue("endDate", "");
       return;
     }
 
     const plan = plans.find(p => p.id === planId);
     if (plan) {
       setValue("amount", plan.price);
-      if (selectedStartDate) {
-        const start = new Date(selectedStartDate);
-        start.setMonth(start.getMonth() + plan.durationMonths);
-        setValue("endDate", start.toISOString().split("T")[0]);
-      }
     }
   };
 
@@ -100,11 +94,11 @@ export default function RenewForm({ member, plans }: RenewFormProps) {
       const payload = {
         membershipPlanId: data.membershipPlanId || undefined,
         customPlanName: data.customPlanName || undefined,
+        customPlanDuration: !data.membershipPlanId ? Number(data.customPlanDuration) : undefined,
         amount: Number(data.amount),
         paymentMethod: data.paymentMethod,
         paymentReference: data.paymentReference || undefined,
         startDate: data.startDate,
-        endDate: data.endDate,
         remarks: data.remarks || undefined,
       };
 
@@ -190,16 +184,30 @@ export default function RenewForm({ member, plans }: RenewFormProps) {
             </div>
 
             {!selectedPlanId && (
-              <div className="flex flex-col gap-xs">
-                <label className="input-label" htmlFor="customPlanName">Custom Plan Name</label>
-                <input 
-                  className="input-field h-[40px] text-sm py-2" 
-                  id="customPlanName" 
-                  placeholder="e.g. Special Offer 2 Months" 
-                  {...register("customPlanName")} 
-                  required={!selectedPlanId}
-                />
-              </div>
+              <>
+                <div className="flex flex-col gap-xs">
+                  <label className="input-label" htmlFor="customPlanName">Custom Plan Name</label>
+                  <input 
+                    className="input-field h-[40px] text-sm py-2" 
+                    id="customPlanName" 
+                    placeholder="e.g. Special Offer 2 Months" 
+                    {...register("customPlanName")} 
+                    required={!selectedPlanId}
+                  />
+                </div>
+                <div className="flex flex-col gap-xs">
+                  <label className="input-label" htmlFor="customPlanDuration">Duration (Months)</label>
+                  <input 
+                    className="input-field h-[40px] text-sm py-2" 
+                    id="customPlanDuration" 
+                    type="number"
+                    min={1}
+                    placeholder="e.g. 1" 
+                    {...register("customPlanDuration")} 
+                    required={!selectedPlanId}
+                  />
+                </div>
+              </>
             )}
 
             <div className="flex flex-col gap-xs">
@@ -219,18 +227,6 @@ export default function RenewForm({ member, plans }: RenewFormProps) {
             <div className="flex flex-col gap-xs">
               <label className="input-label" htmlFor="startDate">Start Date</label>
               <input className="input-field h-[40px] text-sm py-2" id="startDate" type="date" {...register("startDate")} required />
-            </div>
-            
-            <div className="flex flex-col gap-xs">
-              <label className="input-label" htmlFor="endDate">End Date</label>
-              <input 
-                className="input-field h-[40px] text-sm py-2" 
-                id="endDate" 
-                type="date" 
-                readOnly={!!selectedPlanId}
-                {...register("endDate")} 
-                required
-              />
             </div>
 
             <div className="flex flex-col gap-xs">

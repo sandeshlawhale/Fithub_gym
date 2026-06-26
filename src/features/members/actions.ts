@@ -191,11 +191,11 @@ export async function renewMembershipAction(memberId: string, data: any) {
     const schema = z.object({
       membershipPlanId: z.string().uuid().optional().or(z.literal("")),
       customPlanName: z.string().optional(),
+      customPlanDuration: z.coerce.number().min(1).optional(),
       amount: z.coerce.number().min(0, "Amount cannot be negative"),
       paymentMethod: z.nativeEnum(PaymentMethod),
       paymentReference: z.string().optional(),
       startDate: z.string().transform(v => new Date(v)),
-      endDate: z.string().transform(v => new Date(v)),
       remarks: z.string().optional(),
     });
 
@@ -204,6 +204,33 @@ export async function renewMembershipAction(memberId: string, data: any) {
     const member = await MemberService.getMemberById(memberId);
     if (!member) throw new Error("Member not found");
 
+    // Fetch plan duration if provided
+    let durationMonths = 1;
+    if (validated.membershipPlanId) {
+      const plan = await prisma.membershipPlan.findUnique({
+        where: { id: validated.membershipPlanId },
+      });
+      if (!plan) throw new Error("Selected plan not found");
+      durationMonths = plan.durationMonths;
+    } else if (validated.customPlanDuration) {
+      durationMonths = validated.customPlanDuration;
+    }
+
+    const endDate = new Date(validated.startDate);
+    endDate.setMonth(endDate.getMonth() + durationMonths);
+
+    // Build the payload for renewMembership
+    const payload = {
+      membershipPlanId: validated.membershipPlanId || undefined,
+      customPlanName: validated.customPlanName,
+      amount: validated.amount,
+      paymentMethod: validated.paymentMethod,
+      paymentReference: validated.paymentReference,
+      startDate: validated.startDate,
+      endDate: endDate,
+      remarks: validated.remarks,
+    };
+
     if (member.coupleGroupId) {
       // It's a couple renewal. We should renew both members linked in the couple group!
       const partner = member.coupleGroup?.members[0];
@@ -211,15 +238,13 @@ export async function renewMembershipAction(memberId: string, data: any) {
         const splitAmount = validated.amount / 2;
         
         const m1Renewed = await MembershipService.renewMembership(memberId, {
-          ...validated,
+          ...payload,
           amount: splitAmount,
-          membershipPlanId: validated.membershipPlanId || undefined,
         });
 
         const m2Renewed = await MembershipService.renewMembership(partner.id, {
-          ...validated,
+          ...payload,
           amount: splitAmount,
-          membershipPlanId: validated.membershipPlanId || undefined,
         });
 
         // Send receipt notifications
@@ -232,8 +257,7 @@ export async function renewMembershipAction(memberId: string, data: any) {
       } else {
         // Just renew single member in group
         const m1Renewed = await MembershipService.renewMembership(memberId, {
-          ...validated,
-          membershipPlanId: validated.membershipPlanId || undefined,
+          ...payload,
         });
 
         // Send receipt notification
@@ -246,8 +270,7 @@ export async function renewMembershipAction(memberId: string, data: any) {
     } else {
       // Regular single member renewal
       const m1Renewed = await MembershipService.renewMembership(memberId, {
-        ...validated,
-        membershipPlanId: validated.membershipPlanId || undefined,
+        ...payload,
       });
 
       // Send receipt notification

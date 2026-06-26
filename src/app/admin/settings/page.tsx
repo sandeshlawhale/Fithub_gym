@@ -17,7 +17,7 @@ export default function SettingsPage() {
   const [gymName, setGymName] = useState("");
   const [registrationFee, setRegistrationFee] = useState(200);
   const [timezone, setTimezone] = useState("Asia/Kolkata");
-  
+
   const [whatsappEnabled, setWhatsappEnabled] = useState(false);
   const [whatsappPhoneId, setWhatsappPhoneId] = useState("");
   const [whatsappToken, setWhatsappToken] = useState("");
@@ -102,22 +102,20 @@ export default function SettingsPage() {
       <div className="flex border-b border-[#323232] gap-sm mt-md">
         <button
           onClick={() => setActiveTab("gym")}
-          className={`flex items-center gap-xs pb-md px-md font-label-md text-sm cursor-pointer transition-colors border-b-2 ${
-            activeTab === "gym"
-              ? "border-primary text-primary font-bold"
-              : "border-transparent text-secondary hover:text-white"
-          }`}
+          className={`flex items-center gap-xs pb-md px-md font-label-md text-sm cursor-pointer transition-colors border-b-2 ${activeTab === "gym"
+            ? "border-primary text-primary font-bold"
+            : "border-transparent text-secondary hover:text-white"
+            }`}
         >
           <Building2 className="w-4 h-4" />
           Gym Configuration
         </button>
         <button
           onClick={() => setActiveTab("whatsapp")}
-          className={`flex items-center gap-xs pb-md px-md font-label-md text-sm cursor-pointer transition-colors border-b-2 ${
-            activeTab === "whatsapp"
-              ? "border-primary text-primary font-bold"
-              : "border-transparent text-secondary hover:text-white"
-          }`}
+          className={`flex items-center gap-xs pb-md px-md font-label-md text-sm cursor-pointer transition-colors border-b-2 ${activeTab === "whatsapp"
+            ? "border-primary text-primary font-bold"
+            : "border-transparent text-secondary hover:text-white"
+            }`}
         >
           <MessageSquare className="w-4 h-4" />
           WhatsApp Integration
@@ -161,10 +159,10 @@ export default function SettingsPage() {
               <div className="flex flex-col gap-xs">
                 <label className="input-label" htmlFor="regFee">Default Registration Fee (₹)</label>
                 <div className="relative flex items-center">
-                  <Coins className="absolute left-3 w-4 h-4 text-secondary" />
+                  {/* <Coins className="absolute left-3 w-4 h-4 text-secondary" /> */}
                   <input
                     id="regFee"
-                    className="input-field pl-9 h-[42px]"
+                    className="input-field h-[42px]"
                     type="number"
                     min={0}
                     value={registrationFee}
@@ -196,7 +194,7 @@ export default function SettingsPage() {
           <div className="flex flex-col gap-md">
             <div className="flex justify-between items-center border-b border-[#323232] pb-xs mb-md">
               <h3 className="text-white font-display text-lg font-bold uppercase tracking-wide">Meta Cloud Integration</h3>
-              
+
               {/* Integration Switch Toggle */}
               <div className="flex items-center gap-xs">
                 <span className="text-xs text-secondary">{whatsappEnabled ? "INTEGRATION ON" : "INTEGRATION OFF"}</span>
