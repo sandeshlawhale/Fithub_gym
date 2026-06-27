@@ -151,9 +151,9 @@ export default async function ReceiptPage({ params }: PageProps) {
             {/* Gym Details */}
             <div className="text-right flex flex-col gap-2px justify-start text-[10px]">
               <span className="font-bold text-neutral-900">THE FITHUB GYM</span>
-              <span className="text-neutral-500">123 Gym Street, Sector V, Salt Lake City, Kolkata - 700091</span>
-              <span className="text-neutral-500">PH: +91 98765 43210</span>
-              <span className="text-neutral-500">EMAIL: support@thefithubgym.com</span>
+              <span className="text-neutral-500">Plot no 6456, Ward no 17, opp Govt ITI, Kalambha Road, Narkhed - 441304</span>
+              <span className="text-neutral-500">PH: +91 8788849529</span>
+              <span className="text-neutral-500">EMAIL: millennialcorpllp@gmail.com</span>
             </div>
           </div>
 

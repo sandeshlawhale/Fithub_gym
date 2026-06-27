@@ -1,0 +1,46 @@
+- `[x]` Setup & Navigation Bar
+  - `[x]` Reconstruct the TopNavBar with sticky, glassmorphism backdrop blur and correct brand style
+  - `[x]` Configure links pointing to page anchors and `/auth/login` (Admin Portal)
+- `[x]` Recreate Hero Section (Screen 1 Design)
+  - `[x]` Implement full-screen Hero layout with `/assets/gallery/hero.png` as background
+  - `[x]` Apply dark radial/linear gradient overlay to blend into body background
+  - `[x]` Implement display typography and "Start Trial" / "Explore Facility" buttons
+- `[x]` Build Feature Bento Grid (Screen 2 Design)
+  - `[x]` Create `bento-grid` layout for the 4 core standard cards
+  - `[x]` Embed `/assets/gallery/gallery1.jpeg` on the large Premium Equipment card
+  - `[x]` Embed `/assets/gallery/gallery2.jpeg` on the medium Recovery & Amenities card
+- `[x]` Create Elite Performance Framework
+  - `[x]` Implement the 4 pillars (Biomechanics, Power, Conditioning, Recovery)
+  - `[x]` Integrate the rotating scientific circle decoration surrounding `/assets/gallery/gallery3.jpeg`
+- `[x]` Implement Proving Grounds Gallery
+  - `[x]` Design custom horizontal scroll container with scrollbar hidden
+  - `[x]` Populate gallery slides using `gallery4.jpeg` to `gallery12.jpeg` with hover titles
+- `[x]` Dynamic Pricing / Access Tiers
+  - `[x]` Refactor pricing cards to map to Prisma database plans dynamically
+  - `[x]` Apply Pro, Elite, and Standard tier styling dynamically to matching database plans
+- `[x]` Map & Contact Section
+  - `[x]` Design dark-mode stylized map card with `/assets/gallery/gallery8.jpeg` and bounce location pin
+  - `[x]` Lay out contact details (Address, Phone, Email) with "Get Directions" anchor
+- `[x]` Design Revisions (Feedback Refinements)
+  - `[x]` Adjust Hero text to be centered, bold, and slightly smaller
+  - `[x]` Set Hero background container to 16:9 aspect ratio
+  - `[x]` Redesign Bento Grid using responsive CSS/Tailwind grid columns (rows stack on mobile)
+  - `[x]` Make headings of all sections bigger and bolder
+  - `[x]` Align the start of the Proving Grounds horizontal scroll with content padding margin
+  - `[x]` Filter Access Tiers to 3 plans (Quarterly highlighted as Fan Favourite)
+  - `[x]` Merge Contact Page form, info cards, and map section under `#contact` anchor CTA
+  - `[x]` Remove `/contact` page files and route directory completely
+- `[x]` Final Styling Tweaks
+  - `[x]` Standardize vertical padding (`py-16`) and horizontal margin classes consistently across all sections
+  - `[x]` Integrate `logo.jpeg` image in the header brand link
+  - `[x]` Remove "Join Now" button from header navbar and mobile menus
+  - `[x]` Simplify Admin Portal button to a simpler "Login" button
+  - `[x]` Remove vertical paddings from Hero Section to center-align the content inside 16:9 area
+  - `[x]` Update contact section form card to reduce margins and paddings
+  - `[x]` Embed interactive Google Map for the Narkher, MH location, with grayscale styling and bounce pin removed
+  - `[x]` Embed brand logo in the footer below description
+  - `[x]` Align quick links column to the left of the brand column in footer
+  - `[x]` Separate footer copyright details (left side) and legals links (right side)
+- `[x]` Verify & Walkthrough
+  - `[x]` Verify builds compile without errors and the server is running correctly
+  - `[x]` Update the walkthrough documentation with code modifications and outcomes

@@ -221,6 +221,17 @@ export class MembershipService {
           startDate: { lte: now },
           endDate: { gte: now },
         });
+      } else if (status === "expiring_soon") {
+        const fiveDaysFromNow = new Date();
+        fiveDaysFromNow.setDate(fiveDaysFromNow.getDate() + 5);
+        conditions.push({
+          status: "ACTIVE",
+          startDate: { lte: now },
+          endDate: {
+            gte: now,
+            lte: fiveDaysFromNow,
+          },
+        });
       } else if (status === "expired") {
         conditions.push({
           OR: [

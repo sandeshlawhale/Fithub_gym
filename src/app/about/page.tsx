@@ -39,7 +39,7 @@ export default function AboutPage() {
         <nav className="hidden md:flex items-center gap-xl font-label-md text-label-md text-on-surface-variant">
           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
           <Link href="/about" className="hover:text-primary transition-colors text-primary font-bold">About Us</Link>
-          <Link href="/contact" className="hover:text-primary transition-colors">Contact</Link>
+          <Link href="/#contact" className="hover:text-primary transition-colors">Contact</Link>
         </nav>
 
         <div className="flex items-center gap-md">
@@ -142,7 +142,7 @@ export default function AboutPage() {
           <div className="flex items-center gap-xl text-sm text-on-surface-variant">
             <Link href="/" className="hover:text-primary transition-colors">Home</Link>
             <Link href="/about" className="hover:text-primary transition-colors text-primary font-bold">About Us</Link>
-            <Link href="/contact" className="hover:text-primary transition-colors">Contact</Link>
+            <Link href="/#contact" className="hover:text-primary transition-colors">Contact</Link>
             <Link href="/auth/login" className="hover:text-primary transition-colors">Admin Login</Link>
           </div>
         </div>

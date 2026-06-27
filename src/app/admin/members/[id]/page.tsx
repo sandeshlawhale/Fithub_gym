@@ -40,6 +40,14 @@ export default async function MemberDetailPage({ params }: PageProps) {
   const latestMembership = member.latestMembership;
   const partner = member.coupleGroup?.members[0] || null;
 
+  const formatDate = (dateInput: Date | string) => {
+    const d = new Date(dateInput);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   const isBirthdayThisMonth = member.dateOfBirth ? (() => {
     const dob = new Date(member.dateOfBirth);
     const today = new Date();
@@ -261,11 +269,11 @@ export default async function MemberDetailPage({ params }: PageProps) {
                   <div className="grid grid-cols-2 gap-sm text-sm">
                     <div>
                       <span className="text-xs text-on-surface-variant uppercase font-semibold">Start Date</span>
-                      <p className="text-white font-medium mt-xs">{new Date(latestMembership.startDate).toLocaleDateString()}</p>
+                      <p className="text-white font-medium mt-xs">{formatDate(latestMembership.startDate)}</p>
                     </div>
                     <div>
                       <span className="text-xs text-on-surface-variant uppercase font-semibold">Expiry Date</span>
-                      <p className="text-primary font-bold mt-xs">{new Date(latestMembership.endDate).toLocaleDateString()}</p>
+                      <p className="text-primary font-bold mt-xs">{formatDate(latestMembership.endDate)}</p>
                     </div>
                   </div>
 
@@ -315,7 +323,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
                   <div className="border-t border-[#323232] pt-md flex flex-col gap-sm text-xs text-on-surface-variant bg-surface-container/30 p-sm rounded-lg border border-outline-variant/30 text-[11px]">
                     <div className="flex justify-between">
                       <span>Payment Date:</span>
-                      <span className="text-white font-medium">{new Date(latestMembership.createdAt).toLocaleDateString()}</span>
+                      <span className="text-white font-medium">{formatDate(latestMembership.createdAt)}</span>
                     </div>
 
                     <div className="flex justify-between">

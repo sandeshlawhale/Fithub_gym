@@ -16,6 +16,7 @@ interface HistoryTableControlsProps {
 
 const STATUS_OPTIONS = [
   { value: "active", label: "Active", dot: "bg-green-500" },
+  { value: "expiring_soon", label: "Expiring Soon", dot: "bg-orange-500" },
   { value: "upcoming", label: "Upcoming", dot: "bg-yellow-400" },
   { value: "expired", label: "Expired", dot: "bg-red-500" },
 ];
