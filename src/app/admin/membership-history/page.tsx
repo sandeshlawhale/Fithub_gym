@@ -3,6 +3,7 @@ import { MembershipService } from "@/services/membership.service";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import HistoryTableControls from "./HistoryTableControls";
+import ReceiptButton from "./ReceiptButton";
 
 interface PageProps {
   searchParams: Promise<{
@@ -66,12 +67,13 @@ export default async function MembershipHistoryPage({ searchParams }: PageProps)
                 <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Method</th>
                 <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Reg. Fee</th>
                 <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold text-right">Paid Amount</th>
+                <th className="py-md px-lg font-label-sm text-xs text-on-surface-variant uppercase tracking-widest font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant font-body-md text-sm bg-surface">
               {result.data.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-xl text-center text-on-surface-variant">
+                  <td colSpan={9} className="py-xl text-center text-on-surface-variant">
                     No transactions found matching the filters.
                   </td>
                 </tr>
@@ -133,6 +135,9 @@ export default async function MembershipHistoryPage({ searchParams }: PageProps)
                       </td>
                       <td className="py-md px-lg text-right font-bold text-primary-container">
                         ₹{(log.amount + log.registrationFee).toLocaleString("en-IN")}
+                      </td>
+                      <td className="py-md px-lg text-right">
+                        <ReceiptButton membershipId={log.id} />
                       </td>
                     </tr>
                   );

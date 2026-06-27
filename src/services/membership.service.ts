@@ -281,4 +281,40 @@ export class MembershipService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
+  static async getMembershipReceiptDetails(id: string) {
+    const membership = await prisma.membership.findUnique({
+      where: { id },
+      include: {
+        member: true,
+        membershipPlan: true,
+        coupleGroup: {
+          include: {
+            members: true,
+          },
+        },
+      },
+    });
+
+    if (!membership) return null;
+
+    // Get sequence count of memberships created on or before this membership's createdAt
+    const count = await prisma.membership.count({
+      where: {
+        createdAt: {
+          lt: membership.createdAt,
+        },
+      },
+    }) + 1;
+
+    const partner = membership.coupleGroup?.members.find(
+      (m) => m.id !== membership.memberId
+    ) || null;
+
+    return {
+      ...membership,
+      partner,
+      receiptNo: `REC_${new Date(membership.createdAt).getFullYear()}_${String(count).padStart(6, "0")}`,
+    };
+  }
 }

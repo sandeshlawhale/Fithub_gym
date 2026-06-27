@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MemberService } from "@/services/member.service";
+import ReceiptButton from "@/app/admin/membership-history/ReceiptButton";
 // import DeleteMemberButton from "./DeleteMemberButton";
 import {
   ArrowLeft,
@@ -99,24 +100,22 @@ export default async function MemberDetailPage({ params }: PageProps) {
               </div>
 
               <div className="flex-grow flex flex-col gap-xs">
-                <span className={`inline-flex items-center gap-xs px-sm py-xs rounded-full border text-xs font-semibold self-center md:self-start uppercase tracking-wider ${
-                  member.status === "ACTIVE"
-                    ? "border-primary text-primary bg-primary/10"
-                    : member.status === "EXPIRING_SOON"
-                      ? "border-amber-500 text-amber-500 bg-amber-500/10"
-                      : member.status === "EXPIRED"
-                        ? "border-error text-error bg-error/10"
-                        : "border-outline-variant text-on-surface-variant bg-surface-container"
+                <span className={`inline-flex items-center gap-xs px-sm py-xs rounded-full border text-xs font-semibold self-center md:self-start uppercase tracking-wider ${member.status === "ACTIVE"
+                  ? "border-primary text-primary bg-primary/10"
+                  : member.status === "EXPIRING_SOON"
+                    ? "border-amber-500 text-amber-500 bg-amber-500/10"
+                    : member.status === "EXPIRED"
+                      ? "border-error text-error bg-error/10"
+                      : "border-outline-variant text-on-surface-variant bg-surface-container"
                   }`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${
-                    member.status === "ACTIVE"
-                      ? "bg-primary"
-                      : member.status === "EXPIRING_SOON"
-                        ? "bg-amber-500 animate-pulse"
-                        : member.status === "EXPIRED"
-                          ? "bg-error"
-                          : "bg-on-surface-variant"
-                  }`}></span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${member.status === "ACTIVE"
+                    ? "bg-primary"
+                    : member.status === "EXPIRING_SOON"
+                      ? "bg-amber-500 animate-pulse"
+                      : member.status === "EXPIRED"
+                        ? "bg-error"
+                        : "bg-on-surface-variant"
+                    }`}></span>
                   {member.status === "EXPIRING_SOON" ? "EXPIRING SOON" : member.status === "UPCOMING" ? "COMING SOON" : member.status}
                 </span>
                 <h1 className="text-3xl font-extrabold text-white mt-xs capitalize">{member.name}</h1>
@@ -242,7 +241,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
             <div className="absolute top-0 right-0 p-4">
               <CreditCard className="w-12 h-12 text-[#F59E0B]/20" />
             </div>
-            <span className="text-xs text-primary-container font-semibold uppercase tracking-widest">Active Membership</span>
+            <span className="text-xs text-primary-container font-semibold uppercase tracking-widest">Membership</span>
 
             {latestMembership ? (() => {
               const today = new Date();
@@ -337,6 +336,11 @@ export default async function MemberDetailPage({ params }: PageProps) {
                         <p className="text-white italic">{latestMembership.remarks}</p>
                       </div>
                     )}
+                  </div>
+
+                  {/* Receipt Action */}
+                  <div className="flex justify-end pt-sm border-t border-[#323232]">
+                    <ReceiptButton membershipId={latestMembership.id} />
                   </div>
                 </div>
               );
