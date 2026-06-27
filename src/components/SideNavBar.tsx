@@ -29,7 +29,7 @@ export default function SideNavBar({ isOpen, onClose, adminName = "FitHub Admin"
     { name: "Members", href: "/admin/members", icon: Users },
     { name: "Membership (History)", href: "/admin/membership-history", icon: History },
     { name: "Membership Plans", href: "/admin/membership-plans", icon: CreditCard },
-    { name: "Notifications", href: "/admin/notifications", icon: Bell },
+    // { name: "Notifications", href: "/admin/notifications", icon: Bell },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 

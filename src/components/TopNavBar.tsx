@@ -29,12 +29,12 @@ export default function TopNavBar({ onMenuClick, adminName = "Admin" }: TopNavBa
 
       {/* Trailing Actions */}
       <div className="flex items-center gap-md">
-        <Link 
+        {/* <Link 
           href="/admin/notifications" 
           className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 transition-transform"
         >
           <Bell className="w-5 h-5" />
-        </Link>
+        </Link> */}
         <button className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 transition-transform hidden sm:flex">
           <HelpCircle className="w-5 h-5" />
         </button>
