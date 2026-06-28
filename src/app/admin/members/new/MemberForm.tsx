@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { createSingleMemberAction, createCoupleMemberAction } from "@/features/members/actions";
+import { createSingleMemberAction, createCoupleMemberAction, searchMembersAction } from "@/features/members/actions";
 import { Gender, PaymentMethod, MemberType } from "@prisma/client";
-import { Plus, Trash, Check, User, ArrowRight, ArrowLeft } from "lucide-react";
+import { Plus, Trash, Check, User, ArrowRight, ArrowLeft, Search, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -33,6 +32,21 @@ export default function MemberForm({ plans }: MemberFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+
+  // State for linking existing members
+  const [existingMemberId, setExistingMemberId] = useState<string | null>(null);
+  const [existingPartnerId, setExistingPartnerId] = useState<string | null>(null);
+
+  // Search autocomplete states
+  const [primarySearchQuery, setPrimarySearchQuery] = useState("");
+  const [primarySearchResults, setPrimarySearchResults] = useState<any[]>([]);
+  const [showPrimarySearchDropdown, setShowPrimarySearchDropdown] = useState(false);
+  const [searchingPrimary, setSearchingPrimary] = useState(false);
+
+  const [partnerSearchQuery, setPartnerSearchQuery] = useState("");
+  const [partnerSearchResults, setPartnerSearchResults] = useState<any[]>([]);
+  const [showPartnerSearchDropdown, setShowPartnerSearchDropdown] = useState(false);
+  const [searchingPartner, setSearchingPartner] = useState(false);
 
   // Filter plans based on selected type
   const availablePlans = plans.filter(p => p.memberType === memberType);
@@ -97,6 +111,105 @@ export default function MemberForm({ plans }: MemberFormProps) {
     }
   };
 
+  const handlePrimarySearch = async (query: string) => {
+    setPrimarySearchQuery(query);
+    if (query.trim().length < 2) {
+      setPrimarySearchResults([]);
+      setShowPrimarySearchDropdown(false);
+      return;
+    }
+    setSearchingPrimary(true);
+    try {
+      const res = await searchMembersAction(query);
+      if (res.success && res.data) {
+        // Exclude partner if already linked
+        const filtered = res.data.filter((m: any) => m.id !== existingPartnerId);
+        setPrimarySearchResults(filtered);
+        setShowPrimarySearchDropdown(true);
+      }
+    } catch (e) {
+      console.error("Error searching primary member:", e);
+    } finally {
+      setSearchingPrimary(false);
+    }
+  };
+
+  const handlePartnerSearch = async (query: string) => {
+    setPartnerSearchQuery(query);
+    if (query.trim().length < 2) {
+      setPartnerSearchResults([]);
+      setShowPartnerSearchDropdown(false);
+      return;
+    }
+    setSearchingPartner(true);
+    try {
+      const res = await searchMembersAction(query);
+      if (res.success && res.data) {
+        // Exclude primary if already linked
+        const filtered = res.data.filter((m: any) => m.id !== existingMemberId);
+        setPartnerSearchResults(filtered);
+        setShowPartnerSearchDropdown(true);
+      }
+    } catch (e) {
+      console.error("Error searching partner member:", e);
+    } finally {
+      setSearchingPartner(false);
+    }
+  };
+
+  const linkPrimaryMember = (member: any) => {
+    setExistingMemberId(member.id);
+    setValue("firstName", member.firstName);
+    setValue("lastName", member.lastName);
+    setValue("phone", member.phone);
+    setValue("gender", member.gender);
+    setValue("email", member.email || "");
+    setValue("dateOfBirth", member.dateOfBirth ? new Date(member.dateOfBirth).toISOString().split('T')[0] : "");
+    setValue("address", member.address || "");
+    if (member.emergencyContact) setValue("emergencyContact", member.emergencyContact);
+    if (member.emergencyPhone) setValue("emergencyPhone", member.emergencyPhone);
+    if (member.notes) setValue("notes", member.notes);
+    
+    setPrimarySearchQuery("");
+    setShowPrimarySearchDropdown(false);
+  };
+
+  const unlinkPrimaryMember = () => {
+    setExistingMemberId(null);
+    setValue("firstName", "");
+    setValue("lastName", "");
+    setValue("phone", "");
+    setValue("gender", Gender.MALE);
+    setValue("email", "");
+    setValue("dateOfBirth", "");
+    setValue("address", "");
+  };
+
+  const linkPartnerMember = (member: any) => {
+    setExistingPartnerId(member.id);
+    setValue("partnerFirstName", member.firstName);
+    setValue("partnerLastName", member.lastName);
+    setValue("partnerPhone", member.phone);
+    setValue("partnerGender", member.gender);
+    setValue("partnerEmail", member.email || "");
+    setValue("partnerDateOfBirth", member.dateOfBirth ? new Date(member.dateOfBirth).toISOString().split('T')[0] : "");
+    setValue("partnerAddress", member.address || "");
+    
+    setPartnerSearchQuery("");
+    setShowPartnerSearchDropdown(false);
+  };
+
+  const unlinkPartnerMember = () => {
+    setExistingPartnerId(null);
+    setValue("partnerFirstName", "");
+    setValue("partnerLastName", "");
+    setValue("partnerPhone", "");
+    setValue("partnerGender", Gender.FEMALE);
+    setValue("partnerEmail", "");
+    setValue("partnerDateOfBirth", "");
+    setValue("partnerAddress", "");
+  };
+
   const onSubmit = async (data: any) => {
     setError(null);
     setLoading(true);
@@ -104,6 +217,7 @@ export default function MemberForm({ plans }: MemberFormProps) {
     try {
       if (memberType === MemberType.SINGLE) {
         const payload = {
+          existingMemberId: existingMemberId || undefined,
           firstName: data.firstName,
           lastName: data.lastName,
           phone: data.phone,
@@ -134,6 +248,8 @@ export default function MemberForm({ plans }: MemberFormProps) {
         }
       } else {
         const payload = {
+          existingMemberId: existingMemberId || undefined,
+          existingPartnerId: existingPartnerId || undefined,
           memberOne: {
             firstName: data.firstName,
             lastName: data.lastName,
@@ -182,7 +298,7 @@ export default function MemberForm({ plans }: MemberFormProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-lg pb-xl">
+    <div className="max-w-4xl mx-auto flex flex-col gap-lg pb-xl animate-fade-in">
       {/* Header */}
       <div>
         <button
@@ -206,6 +322,7 @@ export default function MemberForm({ plans }: MemberFormProps) {
             setValue("membershipPlanId", "");
             setValue("amount", 0);
             setValue("endDate", "");
+            unlinkPrimaryMember();
           }}
           className={`py-3 px-lg font-label-md text-sm font-bold border-b-2 cursor-pointer transition-colors ${memberType === MemberType.SINGLE ? "border-primary text-primary" : "border-transparent text-secondary hover:text-white"
             }`}
@@ -219,6 +336,8 @@ export default function MemberForm({ plans }: MemberFormProps) {
             setValue("membershipPlanId", "");
             setValue("amount", 0);
             setValue("endDate", "");
+            unlinkPrimaryMember();
+            unlinkPartnerMember();
           }}
           className={`py-3 px-lg font-label-md text-sm font-bold border-b-2 cursor-pointer transition-colors ${memberType === MemberType.COUPLE ? "border-primary text-primary" : "border-transparent text-secondary hover:text-white"
             }`}
@@ -250,7 +369,67 @@ export default function MemberForm({ plans }: MemberFormProps) {
               {memberType === MemberType.COUPLE ? "Primary Member Details" : "Member Details"}
             </h3>
 
-            <div className="grid grid-cols-2 gap-sm">
+            {/* Search autocomplete input */}
+            <div className="relative">
+              <label className="input-label mb-xs">Search Existing Member (Autofill)</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  className="input-field h-[36px] text-xs py-1.5 pl-8"
+                  placeholder="Type name or phone to search..."
+                  value={primarySearchQuery}
+                  onChange={(e) => handlePrimarySearch(e.target.value)}
+                />
+                <Search className="w-3.5 h-3.5 text-secondary absolute left-2.5 top-2.5" />
+                {primarySearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPrimarySearchQuery("");
+                      setPrimarySearchResults([]);
+                      setShowPrimarySearchDropdown(false);
+                    }}
+                    className="absolute right-2.5 top-2.5 text-secondary hover:text-white"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Autocomplete Dropdown */}
+              {showPrimarySearchDropdown && primarySearchResults.length > 0 && (
+                <ul className="absolute z-50 w-full mt-xs bg-[#1f1f1f] border border-[#323232] rounded-xl overflow-hidden max-h-[180px] overflow-y-auto shadow-2xl">
+                  {primarySearchResults.map((m) => (
+                    <li
+                      key={m.id}
+                      onClick={() => linkPrimaryMember(m)}
+                      className="p-sm hover:bg-surface-container-high cursor-pointer border-b border-[#323232] last:border-0 flex items-center justify-between text-xs"
+                    >
+                      <div>
+                        <span className="text-white font-bold">{m.firstName} {m.lastName}</span>
+                        <span className="text-xs text-secondary ml-sm">({m.phone})</span>
+                      </div>
+                      <span className="text-xs text-primary font-semibold">Select</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {existingMemberId && (
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-xs flex items-center justify-between text-xs text-primary font-semibold mt-xs">
+                <span>Linked to existing member profile.</span>
+                <button
+                  type="button"
+                  onClick={unlinkPrimaryMember}
+                  className="text-error hover:underline cursor-pointer font-bold"
+                >
+                  Unlink
+                </button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-sm border-t border-[#323232]/50 pt-sm mt-xs">
               <div className="flex flex-col gap-xs">
                 <label className="input-label" htmlFor="firstName">First Name</label>
                 <input className="input-field h-[40px] text-sm py-2" id="firstName" {...register("firstName")} required />
@@ -308,7 +487,67 @@ export default function MemberForm({ plans }: MemberFormProps) {
                 Partner Details
               </h3>
 
-              <div className="grid grid-cols-2 gap-sm">
+              {/* Search autocomplete input for partner */}
+              <div className="relative">
+                <label className="input-label mb-xs">Search Existing Member (Autofill)</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    className="input-field h-[36px] text-xs py-1.5 pl-8"
+                    placeholder="Type name or phone to search..."
+                    value={partnerSearchQuery}
+                    onChange={(e) => handlePartnerSearch(e.target.value)}
+                  />
+                  <Search className="w-3.5 h-3.5 text-secondary absolute left-2.5 top-2.5" />
+                  {partnerSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPartnerSearchQuery("");
+                        setPartnerSearchResults([]);
+                        setShowPartnerSearchDropdown(false);
+                      }}
+                      className="absolute right-2.5 top-2.5 text-secondary hover:text-white"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Autocomplete Dropdown */}
+                {showPartnerSearchDropdown && partnerSearchResults.length > 0 && (
+                  <ul className="absolute z-50 w-full mt-xs bg-[#1f1f1f] border border-[#323232] rounded-xl overflow-hidden max-h-[180px] overflow-y-auto shadow-2xl">
+                    {partnerSearchResults.map((m) => (
+                      <li
+                        key={m.id}
+                        onClick={() => linkPartnerMember(m)}
+                        className="p-sm hover:bg-surface-container-high cursor-pointer border-b border-[#323232] last:border-0 flex items-center justify-between text-xs"
+                      >
+                        <div>
+                          <span className="text-white font-bold">{m.firstName} {m.lastName}</span>
+                          <span className="text-xs text-secondary ml-sm">({m.phone})</span>
+                        </div>
+                        <span className="text-xs text-primary font-semibold">Select</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {existingPartnerId && (
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-xs flex items-center justify-between text-xs text-primary font-semibold mt-xs">
+                  <span>Linked to existing partner profile.</span>
+                  <button
+                    type="button"
+                    onClick={unlinkPartnerMember}
+                    className="text-error hover:underline cursor-pointer font-bold"
+                  >
+                    Unlink
+                  </button>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-sm border-t border-[#323232]/50 pt-sm mt-xs">
                 <div className="flex flex-col gap-xs">
                   <label className="input-label" htmlFor="partnerFirstName">First Name</label>
                   <input className="input-field h-[40px] text-sm py-2" id="partnerFirstName" {...register("partnerFirstName")} required />

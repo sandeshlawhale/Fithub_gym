@@ -27,6 +27,7 @@ const memberProfileFields = {
 
 export const createSingleMemberSchema = z.object({
   ...memberProfileFields,
+  existingMemberId: z.string().uuid().optional().or(z.literal("")),
   membershipPlanId: z
     .string()
     .uuid("Invalid plan selected")
@@ -77,6 +78,8 @@ export const createCoupleMemberSchema = z.object({
       .transform((v) => (v ? new Date(v) : undefined)),
     address: z.string().optional(),
   }),
+  existingMemberId: z.string().uuid().optional().or(z.literal("")),
+  existingPartnerId: z.string().uuid().optional().or(z.literal("")),
   emergencyContact: z.string().optional(),
   emergencyPhone: z.string().optional(),
   notes: z.string().optional(),

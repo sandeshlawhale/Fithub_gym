@@ -51,11 +51,19 @@ async function RenewMemberContent({ params }: PageProps) {
     durationMonths: plan.durationMonths,
   }));
 
+  const partner = member.coupleGroup?.members[0] || null;
+
   const memberPayload = {
     id: member.id,
     firstName: member.firstName,
     lastName: member.lastName,
     coupleGroupId: member.coupleGroupId,
+    partner: partner ? {
+      id: partner.id,
+      firstName: partner.firstName,
+      lastName: partner.lastName,
+      phone: partner.phone,
+    } : null,
     latestMembership: member.latestMembership ? {
       endDate: member.latestMembership.endDate,
     } : null,
