@@ -1,58 +1,58 @@
+const pillars = [
+  {
+    icon: "directions_run",
+    title: "Weight Loss",
+    description: "Burn calories, improve endurance, and lose fat through a combination of cardio and structured strength training.",
+  },
+  {
+    icon: "bolt",
+    title: "Muscle Building",
+    description: "Build lean muscle with progressive strength training, quality equipment, and consistent workout routines.",
+  },
+  {
+    icon: "monitor_heart",
+    title: "Strength Training",
+    description: "Increase overall strength and confidence using free weights, machines, and functional exercises.",
+  },
+  {
+    icon: "self_improvement",
+    title: "General Fitness",
+    description: "Improve your energy, mobility, stamina, and overall health with balanced fitness programs.",
+  },
+];
+
 export default function PerformanceFramework() {
   return (
     <section className="py-16 bg-surface">
       <div className="max-w-7xl px-container-margin mx-auto flex flex-col lg:flex-row gap-2xl items-center">
-        <div className="flex-1 space-y-xl">
+        <div className="flex-1 space-y-xl md:pl-12">
           <div>
-            <h2 className="font-display text-4xl md:text-5xl font-extrabold text-on-background mb-md uppercase tracking-tight">
-              The Elite Performance Framework
+            <h2 className="font-display text-3xl md:text-4xl font-extrabold text-on-background uppercase tracking-tight">
+              YOUR FITNESS. YOUR GOAL.
             </h2>
             <p className="font-body-lg text-body-lg text-secondary">
-              Our methodology is rooted in sports science and adapted for the everyday athlete. We focus on four core pillars to build resilient, powerful bodies.
+              No matter where you're starting, we provide the right training environment and guidance to help you reach your fitness goals.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-lg">
-            {/* Pillar 1 */}
-            <div className="flex gap-md">
-              <div className="mt-1">
-                <span className="material-symbols-outlined text-primary-container text-[28px]">directions_run</span>
+            {pillars.map((pillar, idx) => (
+              <div key={idx} className="flex gap-md">
+                <div className="mt-1">
+                  <span className="material-symbols-outlined text-primary-container text-[28px]">
+                    {pillar.icon}
+                  </span>
+                </div>
+                <div>
+                  <h4 className="font-label-md text-label-md text-on-background mb-xs uppercase tracking-wider">
+                    {pillar.title}
+                  </h4>
+                  <p className="font-body-md text-sm text-secondary">
+                    {pillar.description}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-label-md text-label-md text-on-background mb-xs uppercase tracking-wider">Biomechanics</h4>
-                <p className="font-body-md text-sm text-secondary">Mastering movement patterns before adding load to prevent injury.</p>
-              </div>
-            </div>
-            {/* Pillar 2 */}
-            <div className="flex gap-md">
-              <div className="mt-1">
-                <span className="material-symbols-outlined text-primary-container text-[28px]">bolt</span>
-              </div>
-              <div>
-                <h4 className="font-label-md text-label-md text-on-background mb-xs uppercase tracking-wider">Power Output</h4>
-                <p className="font-body-md text-sm text-secondary">Developing explosive strength through Olympic lifts and plyometrics.</p>
-              </div>
-            </div>
-            {/* Pillar 3 */}
-            <div className="flex gap-md">
-              <div className="mt-1">
-                <span className="material-symbols-outlined text-primary-container text-[28px]">monitor_heart</span>
-              </div>
-              <div>
-                <h4 className="font-label-md text-label-md text-on-background mb-xs uppercase tracking-wider">Conditioning</h4>
-                <p className="font-body-md text-sm text-secondary">Targeted energy system development for sustained endurance.</p>
-              </div>
-            </div>
-            {/* Pillar 4 */}
-            <div className="flex gap-md">
-              <div className="mt-1">
-                <span className="material-symbols-outlined text-primary-container text-[28px]">self_improvement</span>
-              </div>
-              <div>
-                <h4 className="font-label-md text-label-md text-on-background mb-xs uppercase tracking-wider">Recovery</h4>
-                <p className="font-body-md text-sm text-secondary">Active regeneration protocols to optimize adaptation and growth.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
