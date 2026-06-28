@@ -38,42 +38,44 @@ export class MemberService {
     }
 
     if (status) {
-      const now = new Date();
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+
       if (status === "active") {
         where.memberships = {
           some: {
-            status: "ACTIVE",
-            startDate: { lte: now },
-            endDate: { gte: now },
+            startDate: { lte: todayEnd },
+            endDate: { gte: todayStart },
           },
         };
       } else if (status === "expired") {
         where.memberships = {
           some: {
-            endDate: { lt: now },
+            endDate: { lt: todayStart },
           },
           none: {
-            endDate: { gte: now },
+            endDate: { gte: todayStart },
           },
         };
       } else if (status === "upcoming") {
-        // UPCOMING memberships have startDate in the future (status stored as UPCOMING in DB)
         where.memberships = {
           some: {
-            status: "UPCOMING",
-            startDate: { gt: now },
+            startDate: { gt: todayEnd },
           },
         };
       } else if (status === "expiring_soon") {
-        const fiveDaysFromNow = new Date();
-        fiveDaysFromNow.setDate(fiveDaysFromNow.getDate() + 5);
+        const fiveDaysFromNowEnd = new Date();
+        fiveDaysFromNowEnd.setDate(fiveDaysFromNowEnd.getDate() + 5);
+        fiveDaysFromNowEnd.setHours(23, 59, 59, 999);
+
         where.memberships = {
           some: {
-            status: "ACTIVE",
-            startDate: { lte: now },
+            startDate: { lte: todayEnd },
             endDate: {
-              gte: now,
-              lte: fiveDaysFromNow,
+              gte: todayStart,
+              lte: fiveDaysFromNowEnd,
             },
           },
         };

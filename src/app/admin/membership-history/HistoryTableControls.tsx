@@ -97,20 +97,24 @@ export default function HistoryTableControls({ plans }: HistoryTableControlsProp
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [status, setStatus] = useState(searchParams.get("status") || "");
   const [planId, setPlanId] = useState(searchParams.get("planId") || "");
+  const [dateRange, setDateRange] = useState(searchParams.get("dateRange") || "all_time");
 
   const statusRef = useRef(status);
   const planIdRef = useRef(planId);
+  const dateRangeRef = useRef(dateRange);
   statusRef.current = status;
   planIdRef.current = planId;
+  dateRangeRef.current = dateRange;
 
-  const hasFilter = !!status || !!planId;
+  const hasFilter = !!status || !!planId || dateRange === "current_month";
 
-  const applyFilters = (newSearch: string, newStatus: string, newPlanId: string) => {
+  const applyFilters = (newSearch: string, newStatus: string, newPlanId: string, newDateRange: string = dateRange) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", "1");
     if (newSearch) params.set("search", newSearch); else params.delete("search");
     if (newStatus) params.set("status", newStatus); else params.delete("status");
     if (newPlanId) params.set("planId", newPlanId); else params.delete("planId");
+    if (newDateRange && newDateRange !== "all_time") params.set("dateRange", newDateRange); else params.delete("dateRange");
     startTransition(() => router.push(`/admin/membership-history?${params.toString()}`));
   };
 
@@ -118,13 +122,14 @@ export default function HistoryTableControls({ plans }: HistoryTableControlsProp
     setSearch("");
     setStatus("");
     setPlanId("");
-    applyFilters("", "", "");
+    setDateRange("all_time");
+    applyFilters("", "", "", "all_time");
   };
 
   // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
-      applyFilters(search, statusRef.current, planIdRef.current);
+      applyFilters(search, statusRef.current, planIdRef.current, dateRangeRef.current);
     }, 500);
     return () => clearTimeout(timer);
   }, [search]);
@@ -161,7 +166,7 @@ export default function HistoryTableControls({ plans }: HistoryTableControlsProp
       </div>
 
       {/* Filters Toolbar */}
-      <div className="flex items-center gap-sm w-full md:w-auto">
+      <div className="flex flex-wrap items-center gap-sm w-full md:w-auto justify-start md:justify-end">
         {/* Status Dropdown */}
         <FilterDropdown
           isActive={!!status}
@@ -325,6 +330,44 @@ export default function HistoryTableControls({ plans }: HistoryTableControlsProp
                     ))}
                 </>
               )}
+          </div>
+        </FilterDropdown>
+
+        {/* Time Period Dropdown */}
+        <FilterDropdown
+          isActive={dateRange === "current_month"}
+          trigger={
+            <span>{dateRange === "current_month" ? "Current Month" : "All Time"}</span>
+          }
+        >
+          <div className="px-sm pt-sm pb-xs">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant px-xs">
+              Time Period
+            </p>
+          </div>
+          <div className="pb-sm">
+            <button
+              type="button"
+              onClick={() => {
+                setDateRange("all_time");
+                applyFilters(search, status, planId, "all_time");
+              }}
+              className="w-full flex items-center gap-sm px-md py-sm text-sm text-on-surface hover:bg-surface-container-high transition-colors text-left"
+            >
+              <span className="flex-1">All Time</span>
+              {dateRange !== "current_month" && <Check className="w-3.5 h-3.5 text-primary" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setDateRange("current_month");
+                applyFilters(search, status, planId, "current_month");
+              }}
+              className="w-full flex items-center gap-sm px-md py-sm text-sm text-on-surface hover:bg-surface-container-high transition-colors text-left"
+            >
+              <span className="flex-1">Current Month</span>
+              {dateRange === "current_month" && <Check className="w-3.5 h-3.5 text-primary" />}
+            </button>
           </div>
         </FilterDropdown>
 

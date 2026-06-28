@@ -207,12 +207,17 @@ export async function createCoupleMemberAction(data: any) {
       }
 
       // 6. Create shared membership
+      const start = new Date(validated.startDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(validated.endDate);
+      end.setHours(0, 0, 0, 0);
+
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       let status = "ACTIVE";
-      if (validated.startDate > today) {
+      if (start > today) {
         status = "UPCOMING";
-      } else if (validated.endDate < today) {
+      } else if (end < today) {
         status = "EXPIRED";
       }
 
@@ -361,13 +366,14 @@ export async function renewMembershipAction(memberId: string, data: any) {
   }
 }
 
-export async function getMembershipHistoryForExportAction(filters: { search?: string; status?: string; planId?: string }) {
+export async function getMembershipHistoryForExportAction(filters: { search?: string; status?: string; planId?: string; dateRange?: string }) {
   try {
     const result = await MembershipService.getMembershipHistoryLog({
       limit: 100000,
       search: filters.search || "",
       status: filters.status || "",
       planId: filters.planId || "",
+      dateRange: filters.dateRange || "all_time",
     });
     return { success: true, data: result.data };
   } catch (error: any) {

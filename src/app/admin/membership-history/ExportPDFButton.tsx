@@ -16,6 +16,7 @@ interface ExportPDFButtonProps {
   search: string;
   status: string;
   planId: string;
+  dateRange: string;
   plans: PlanOption[];
 }
 
@@ -26,7 +27,7 @@ const STATUS_OPTIONS = [
   { value: "expired", label: "Expired" },
 ];
 
-export default function ExportPDFButton({ search, status, planId, plans }: ExportPDFButtonProps) {
+export default function ExportPDFButton({ search, status, planId, dateRange, plans }: ExportPDFButtonProps) {
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExportPDF = async () => {
@@ -36,6 +37,7 @@ export default function ExportPDFButton({ search, status, planId, plans }: Expor
         search,
         status,
         planId,
+        dateRange,
       });
 
       if (!res.success || !res.data) {
@@ -94,6 +96,9 @@ export default function ExportPDFButton({ search, status, planId, plans }: Expor
         const label = plans.find(p => p.id === planId)?.name || planId;
         activeFiltersText.push(`Plan: ${label}`);
       }
+      if (dateRange && dateRange !== "all_time") {
+        activeFiltersText.push(`Time Period: ${dateRange === "current_month" ? "Current Month" : dateRange}`);
+      }
       
       if (activeFiltersText.length === 0) {
         activeFiltersText.push("None (All records)");
@@ -115,6 +120,8 @@ export default function ExportPDFButton({ search, status, planId, plans }: Expor
         // Days to expire calculation
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+        const start = new Date(log.startDate);
+        start.setHours(0, 0, 0, 0);
         const end = new Date(log.endDate);
         end.setHours(0, 0, 0, 0);
         
@@ -122,16 +129,27 @@ export default function ExportPDFButton({ search, status, planId, plans }: Expor
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
         let daysToExpireStr = "";
+        let statusText = "Active";
+        
         if (diffDays < 0) {
           daysToExpireStr = "Expired";
+          statusText = "Expired";
         } else if (diffDays === 0) {
           daysToExpireStr = "Expires Today";
+          statusText = "Active";
         } else {
           daysToExpireStr = `${diffDays} ${diffDays === 1 ? "day" : "days"}`;
+          if (start > today) {
+            statusText = "Upcoming";
+          } else if (diffDays <= 5) {
+            statusText = "Expiring Soon";
+          } else {
+            statusText = "Active";
+          }
         }
 
         const logDateStr = new Date(log.createdAt).toLocaleDateString();
-        const periodStr = `${new Date(log.startDate).toLocaleDateString()} to ${new Date(log.endDate).toLocaleDateString()}`;
+        const periodStr = `${start.toLocaleDateString()} to ${end.toLocaleDateString()}\nStatus: ${statusText}`;
         const regFeeStr = log.registrationFee > 0 ? `Rs. ${log.registrationFee.toLocaleString("en-IN")}` : "-";
         const paidAmountStr = `Rs. ${(log.amount + log.registrationFee).toLocaleString("en-IN")}`;
 

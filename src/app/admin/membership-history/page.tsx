@@ -13,6 +13,7 @@ interface PageProps {
     search?: string;
     status?: string;
     planId?: string;
+    dateRange?: string;
   }>;
 }
 
@@ -35,6 +36,7 @@ async function MembershipHistoryContent({ searchParams }: PageProps) {
   const search = params.search || "";
   const status = params.status || "";
   const planId = params.planId || "";
+  const dateRange = params.dateRange || "all_time";
 
   const result = await MembershipService.getMembershipHistoryLog({
     page,
@@ -42,6 +44,7 @@ async function MembershipHistoryContent({ searchParams }: PageProps) {
     search,
     status,
     planId,
+    dateRange,
   });
 
   const activePlans = await prisma.membershipPlan.findMany({
@@ -63,7 +66,7 @@ async function MembershipHistoryContent({ searchParams }: PageProps) {
           </p>
         </div>
         <div className="shrink-0 md:self-start">
-          <ExportPDFButton search={search} status={status} planId={planId} plans={activePlans} />
+          <ExportPDFButton search={search} status={status} planId={planId} dateRange={dateRange} plans={activePlans} />
         </div>
       </div>
 
