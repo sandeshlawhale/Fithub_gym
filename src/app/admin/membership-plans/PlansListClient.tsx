@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createPlanAction, togglePlanAction, deletePlanAction, updatePlanAction } from "@/features/plans/actions";
 import { MemberType } from "@prisma/client";
 import { Plus, ToggleLeft, ToggleRight, Trash2, X, Pencil } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 interface Plan {
   id: string;
@@ -21,6 +22,14 @@ interface PlansListClientProps {
 
 export default function PlansListClient({ plans }: PlansListClientProps) {
   const [showAddModal, setShowAddModal] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("new") === "true") {
+      setShowAddModal(true);
+    }
+  }, [searchParams]);
+
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -3,69 +3,92 @@ import { MembershipStatus } from "@prisma/client";
 
 export class DashboardService {
   static async getSummary() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-    const sevenDaysFromNow = new Date(today);
-    sevenDaysFromNow.setDate(today.getDate() + 7);
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
 
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const sevenDaysFromNow = new Date(todayStart);
+    sevenDaysFromNow.setDate(todayStart.getDate() + 7);
 
-    // 1. Total Members (not soft-deleted)
-    const totalMembers = await prisma.member.count({
-      where: { isDeleted: false },
-    });
-
-    // 2. Active Members (have an active membership today)
-    const activeMembers = await prisma.member.count({
+    // 1. Total Memberships in Current Month
+    const totalMembers = await prisma.membership.count({
       where: {
-        isDeleted: false,
-        memberships: {
-          some: {
-            status: MembershipStatus.ACTIVE,
-            startDate: { lte: new Date() },
-            endDate: { gte: today },
-          },
+        startDate: {
+          gte: startOfMonth,
+          lte: endOfMonth,
         },
+        member: { isDeleted: false },
       },
     });
 
-    // 3. Expiring Soon (membership ending within 7 days)
-    const expiringSoon = await prisma.member.count({
+    // 2. Active Memberships in Current Month
+    const activeMembers = await prisma.membership.count({
       where: {
-        isDeleted: false,
-        memberships: {
-          some: {
-            status: MembershipStatus.ACTIVE,
-            endDate: {
-              gte: today,
-              lte: sevenDaysFromNow,
+        member: { isDeleted: false },
+        AND: [
+          {
+            startDate: {
+              gte: startOfMonth,
+              lte: endOfMonth,
             },
           },
-        },
+          { startDate: { lte: todayEnd } },
+          { endDate: { gte: todayStart } },
+        ],
       },
     });
 
-    // 4. Expired Members (have memberships, but none are active or upcoming, and latest is expired)
-    // A simple approximation: members who have at least one membership, but zero active/upcoming ones.
-    const expiredMembers = await prisma.member.count({
+    // 3. Expiring Soon (memberships starting in current month ending within 5 days)
+    const fiveDaysFromNowEnd = new Date(todayEnd);
+    fiveDaysFromNowEnd.setDate(todayEnd.getDate() + 5);
+
+    const expiringSoon = await prisma.membership.count({
       where: {
-        isDeleted: false,
-        memberships: {
-          some: {
-            endDate: { lt: today },
+        member: { isDeleted: false },
+        AND: [
+          {
+            startDate: {
+              gte: startOfMonth,
+              lte: endOfMonth,
+            },
           },
-          none: {
-            endDate: { gte: today },
+          { startDate: { lte: todayEnd } },
+          {
+            endDate: {
+              gte: todayStart,
+              lte: fiveDaysFromNowEnd,
+            },
           },
+        ],
+      },
+    });
+
+    // 4. Expired Memberships in Current Month
+    const expiredMembers = await prisma.membership.count({
+      where: {
+        startDate: {
+          gte: startOfMonth,
+          lte: endOfMonth,
         },
+        member: { isDeleted: false },
+        endDate: { lt: todayStart },
       },
     });
 
     // 5. Monthly Revenue (sum of amount + registrationFee for current month)
     const revenueResult = await prisma.membership.aggregate({
       where: {
-        createdAt: { gte: firstDayOfMonth },
+        startDate: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
+        member: { isDeleted: false },
       },
       _sum: {
         amount: true,
@@ -150,6 +173,28 @@ export class DashboardService {
         amount: Number(r.amount),
         date: r.createdAt,
       })),
+      chartData: await (async () => {
+        const data: { month: string; count: number }[] = [];
+        const now = new Date();
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const monthLabel = d.toLocaleString("en-US", { month: "short" });
+          const endOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+          
+          const count = await prisma.member.count({
+            where: {
+              isDeleted: false,
+              createdAt: { lte: endOfMonth }
+            }
+          });
+          
+          data.push({
+            month: monthLabel,
+            count
+          });
+        }
+        return data;
+      })()
     };
   }
 }

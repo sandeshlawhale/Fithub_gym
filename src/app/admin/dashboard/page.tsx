@@ -5,14 +5,13 @@ import {
   UserCheck, 
   UserX, 
   DollarSign, 
-  TrendingUp, 
   UserPlus, 
   MessageSquare, 
   Download,
   Calendar,
-  MoreVertical,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Plus
 } from "lucide-react";
 
 import { headers } from "next/headers";
@@ -42,22 +41,24 @@ async function DashboardContent() {
 
   const statCards = [
     {
-      title: "Total Members",
-      value: summary.totalMembers.toLocaleString("en-IN"),
-      icon: Users,
-      trend: "12% up",
-      trendType: "up",
-      color: "text-primary-container",
-      bg: "bg-primary-container/10"
-    },
-    {
       title: "Active Members",
       value: summary.activeMembers.toLocaleString("en-IN"),
       icon: UserCheck,
       trend: "8% up",
       trendType: "up",
       color: "text-green-500",
-      bg: "bg-green-500/10"
+      bg: "bg-green-500/10",
+      href: "/admin/membership-history?status=active&dateRange=current_month"
+    },
+    {
+      title: "Expiring Soon",
+      value: summary.expiringSoon.toLocaleString("en-IN"),
+      icon: Calendar,
+      trend: "5 days remaining",
+      trendType: "warning",
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
+      href: "/admin/membership-history?status=expiring_soon&dateRange=current_month"
     },
     {
       title: "Expired Members",
@@ -66,7 +67,8 @@ async function DashboardContent() {
       trend: "2% down",
       trendType: "down",
       color: "text-error",
-      bg: "bg-error/10"
+      bg: "bg-error/10",
+      href: "/admin/membership-history?status=expired&dateRange=current_month"
     },
     {
       title: "Monthly Revenue",
@@ -75,9 +77,27 @@ async function DashboardContent() {
       trend: "24% up",
       trendType: "up",
       color: "text-primary-container",
-      bg: "bg-primary-container/10"
+      bg: "bg-primary-container/10",
+      href: "/admin/membership-history?dateRange=current_month"
     }
   ];
+
+  const chartData = (summary as any).chartData || [];
+  const maxCount = Math.max(...chartData.map((d: any) => d.count), 0);
+  
+  const points = chartData.map((d: any, i: number) => {
+    const x = 50 + i * 140;
+    const y = maxCount > 0 ? 250 - (d.count / maxCount) * 200 : 250;
+    return { x, y, month: d.month, count: d.count };
+  });
+
+  const linePath = points.length > 0 
+    ? `M ${points[0].x},${points[0].y} ` + points.slice(1).map((p: any) => `L ${p.x},${p.y}`).join(' ')
+    : '';
+    
+  const areaPath = points.length > 0 
+    ? `M ${points[0].x},275 ` + points.map((p: any) => `L ${p.x},${p.y}`).join(' ') + ` L ${points[points.length-1].x},275 Z`
+    : '';
 
   return (
     <div className="flex flex-col gap-lg w-full">
@@ -98,21 +118,35 @@ async function DashboardContent() {
         {statCards.map((card) => {
           const Icon = card.icon;
           return (
-            <div key={card.title} className="bg-[#181818] border border-[#323232] rounded-xl p-lg flex flex-col hover:border-outline-variant transition-colors group">
+            <Link 
+              key={card.title} 
+              href={card.href}
+              className="bg-[#181818] border border-[#323232] rounded-xl p-lg flex flex-col hover:border-outline-variant hover:bg-surface-container-high transition-all duration-200 group cursor-pointer active:scale-98"
+            >
               <div className="flex justify-between items-start mb-md">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${card.color} ${card.bg}`}>
                   <Icon className="w-5 h-5" />
                 </div>
                 <span className={`font-label-sm text-label-sm flex items-center gap-xs px-sm py-xs rounded-md ${
-                  card.trendType === "up" ? "text-primary-container bg-primary-container/10" : "text-error bg-error/10"
+                  card.trendType === "up" 
+                    ? "text-primary-container bg-primary-container/10" 
+                    : card.trendType === "warning"
+                      ? "text-amber-500 bg-amber-500/10"
+                      : "text-error bg-error/10"
                 }`}>
-                  {card.trendType === "up" ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
+                  {card.trendType === "up" ? (
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  ) : card.trendType === "warning" ? (
+                    <Calendar className="w-3.5 h-3.5" />
+                  ) : (
+                    <ArrowDownRight className="w-3.5 h-3.5" />
+                  )}
                   {card.trend}
                 </span>
               </div>
               <p className="font-label-sm text-label-sm text-[#B3B3B3] uppercase tracking-wider mb-xs">{card.title}</p>
               <h3 className="font-headline-md text-3xl font-extrabold text-[#FFFFFF] m-0">{card.value}</h3>
-            </div>
+            </Link>
           );
         })}
       </div>
@@ -132,8 +166,8 @@ async function DashboardContent() {
           </div>
           
           {/* SVG Line Chart */}
-          <div className="flex-1 w-full relative min-h-[200px]">
-            <svg className="w-full h-full absolute inset-0" preserveAspectRatio="none" viewBox="0 0 800 300">
+          <div className="flex-1 w-full relative min-h-[220px]">
+            <svg className="w-full h-full absolute inset-0" preserveAspectRatio="none" viewBox="0 0 800 320">
               <defs>
                 <linearGradient id="gradient-area" x1="0" x2="0" y1="0" y2="1">
                   <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.3"></stop>
@@ -141,29 +175,31 @@ async function DashboardContent() {
                 </linearGradient>
               </defs>
               {/* Grid Lines */}
-              <line className="stroke-[#323232] stroke-[1]" x1="0" x2="800" y1="50" y2="50"></line>
-              <line className="stroke-[#323232] stroke-[1]" x1="0" x2="800" y1="125" y2="125"></line>
-              <line className="stroke-[#323232] stroke-[1]" x1="0" x2="800" y1="200" y2="200"></line>
-              <line className="stroke-[#323232] stroke-[1]" x1="0" x2="800" y1="275" y2="275"></line>
+              <line className="stroke-[#323232] stroke-[1]" x1="50" x2="750" y1="50" y2="50"></line>
+              <line className="stroke-[#323232] stroke-[1]" x1="50" x2="750" y1="116" y2="116"></line>
+              <line className="stroke-[#323232] stroke-[1]" x1="50" x2="750" y1="183" y2="183"></line>
+              <line className="stroke-[#323232] stroke-[1]" x1="50" x2="750" y1="250" y2="250"></line>
+              
               {/* Data Path Area */}
-              <path fill="url(#gradient-area)" d="M0,250 L130,220 L260,230 L390,150 L520,180 L650,80 L800,100 L800,300 L0,300 Z"></path>
+              {areaPath && <path fill="url(#gradient-area)" d={areaPath}></path>}
+              
               {/* Data Path Line */}
-              <path fill="none" stroke="#f59e0b" strokeWidth="3" d="M0,250 L130,220 L260,230 L390,150 L520,180 L650,80 L800,100"></path>
-              {/* Data Points */}
-              <circle cx="130" cy="220" fill="#f59e0b" r="5" stroke="#181818" strokeWidth="2"></circle>
-              <circle cx="260" cy="230" fill="#f59e0b" r="5" stroke="#181818" strokeWidth="2"></circle>
-              <circle cx="390" cy="150" fill="#f59e0b" r="5" stroke="#181818" strokeWidth="2"></circle>
-              <circle cx="520" cy="180" fill="#f59e0b" r="5" stroke="#181818" strokeWidth="2"></circle>
-              <circle cx="650" cy="80" fill="#FFFFFF" r="6" stroke="#f59e0b" strokeWidth="3"></circle>
+              {linePath && <path fill="none" stroke="#f59e0b" strokeWidth="3" d={linePath}></path>}
+              
+              {/* Data Points & Value labels */}
+              {points.map((p: any, i: number) => (
+                <g key={i}>
+                  <circle cx={p.x} cy={p.y} fill={i === points.length - 1 ? "#FFFFFF" : "#f59e0b"} r="5" stroke="#f59e0b" strokeWidth="2"></circle>
+                  <text x={p.x} y={p.y - 12} fill="#FFFFFF" textAnchor="middle" className="text-[10px] font-sans font-bold">
+                    {p.count}
+                  </text>
+                  {/* Month Label inside SVG */}
+                  <text x={p.x} y="295" fill="#B3B3B3" textAnchor="middle" className="text-xs font-sans">
+                    {p.month}
+                  </text>
+                </g>
+              ))}
             </svg>
-            <div className="absolute bottom-[-10px] w-full flex justify-between text-[#B3B3B3] font-label-sm text-label-sm px-sm">
-              <span>Jan</span>
-              <span>Feb</span>
-              <span>Mar</span>
-              <span>Apr</span>
-              <span>May</span>
-              <span>Jun</span>
-            </div>
           </div>
         </div>
 
@@ -180,11 +216,11 @@ async function DashboardContent() {
                 Add Member
               </Link>
               <Link 
-                href="/admin/notifications" 
+                href="/admin/membership-plans?new=true" 
                 className="w-full bg-transparent border border-[#323232] text-[#FFFFFF] font-label-md text-label-md py-3 px-md rounded-lg hover:border-outline-variant hover:bg-surface-container transition-colors flex items-center justify-center gap-sm"
               >
-                <MessageSquare className="w-4 h-4" />
-                Broadcast WhatsApp
+                <Plus className="w-4 h-4" />
+                Add Plans
               </Link>
               <Link 
                 href="/admin/membership-history" 
@@ -192,6 +228,13 @@ async function DashboardContent() {
               >
                 <Download className="w-4 h-4" />
                 Export Report
+              </Link>
+              <Link 
+                href="/admin/testimonials?filter=pending" 
+                className="w-full bg-transparent border border-[#323232] text-[#FFFFFF] font-label-md text-label-md py-3 px-md rounded-lg hover:border-outline-variant hover:bg-surface-container transition-colors flex items-center justify-center gap-sm"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Approve Testimonials
               </Link>
             </div>
           </div>
