@@ -5,6 +5,7 @@ import StandardOfExcellence from "@/components/landing/StandardOfExcellence";
 import PerformanceFramework from "@/components/landing/PerformanceFramework";
 import ProvingGrounds from "@/components/landing/ProvingGrounds";
 import AccessTiers from "@/components/landing/AccessTiers";
+import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import ConnectWithUs from "@/components/landing/ConnectWithUs";
 import Footer from "@/components/landing/Footer";
 import { auth } from "@/auth";
@@ -17,6 +18,12 @@ export default async function LandingPage() {
   // Fetch active plans to display in the pricing grid
   const allPlans = await prisma.membershipPlan.findMany({
     where: { isActive: true },
+  });
+
+  // Fetch approved testimonials
+  const testimonials = await prisma.testimonial.findMany({
+    where: { isApproved: true },
+    orderBy: { createdAt: "desc" },
   });
 
   // Filter for exactly Monthly (1 month), Quarterly (3 months), and Annually (12 months)
@@ -48,6 +55,8 @@ export default async function LandingPage() {
 
         <AccessTiers plans={plans} />
 
+        <TestimonialsSection testimonials={testimonials} />
+
         <ConnectWithUs />
       </main>
 
@@ -55,3 +64,4 @@ export default async function LandingPage() {
     </div>
   );
 }
+

@@ -6,7 +6,7 @@ interface AccessTiersProps {
 
 export default function AccessTiers({ plans }: AccessTiersProps) {
   return (
-    <section className="py-16 bg-linear-to-b from-surface to-transparent" id="memberships">
+    <section className="py-16 bg-linear-to-b from-surface-container to-surface-container-lowest" id="memberships">
       <div className="max-w-7xl px-container-margin mx-auto">
         <div className="text-center mb-2xl">
           <h2 className="font-display text-3xl md:text-4xl font-extrabold text-on-background uppercase tracking-tight">

@@ -96,6 +96,15 @@
   --max-width-5xl: 64rem;
   --max-width-6xl: 72rem;
   --max-width-7xl: 80rem;
+  --max-width-10xl: 96rem;
+
+  --animate-scroll: scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite;
+
+  @keyframes scroll {
+    to {
+      transform: translate(calc(-50% - 0.5rem));
+    }
+  }
 }
 
 body {

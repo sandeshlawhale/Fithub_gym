@@ -41,7 +41,7 @@ const excellenceCards = [
 
 export default function StandardOfExcellence() {
   return (
-    <section className="py-16 bg-surface-container-lowest" id="training">
+    <section className="py-16 bg-surface-container-lowest bg-linear-to-b from-surface-container-lowest to-surface-container" id="training">
       <div className="max-w-7xl px-container-margin mx-auto space-y-lg">
         <div className="text-center space-y-sm max-w-3xl mx-auto">
           <h2 className="font-display text-3xl md:text-4xl font-extrabold text-on-background uppercase tracking-tight">
