@@ -38,10 +38,10 @@ export async function getSettings() {
 
 const settingsSchema = z.object({
   gymName: z.string().min(1, "Gym name is required").trim(),
-  addressLine1: z.string().min(1, "Address line 1 is required").trim(),
-  addressLine2: z.string().min(1, "Address line 2 is required").trim(),
-  addressLine3: z.string().min(1, "Address line 3 is required").trim(),
-  phoneNo: z.string().min(1, "Phone number is required").trim(),
+  addressLine1: z.string().trim().default(""),
+  addressLine2: z.string().trim().default(""),
+  addressLine3: z.string().trim().default(""),
+  phoneNo: z.string().trim().default(""),
   registrationFee: z.coerce.number().min(0, "Registration fee cannot be negative"),
   expiryReminderDays: z.coerce.number().int().min(1, "Expiry reminder days must be at least 1"),
   socialInstagram: z.string().nullable().optional().transform(v => v === "" ? null : v),
@@ -52,8 +52,9 @@ const settingsSchema = z.object({
   whatsappPhoneId: z.string().nullable().optional().transform(v => v === "" ? null : v),
   whatsappToken: z.string().nullable().optional().transform(v => v === "" ? null : v),
   businessId: z.string().nullable().optional().transform(v => v === "" ? null : v),
-  timezone: z.string().min(1, "Timezone is required").trim(),
+  timezone: z.string().trim().default("Asia/Kolkata"),
 });
+
 
 export async function getSettingsAction() {
   try {
@@ -70,7 +71,9 @@ export async function getSettingsAction() {
 
 export async function updateSettingsAction(data: any) {
   try {
+    console.log("[Settings] Incoming save data:", JSON.stringify(data, null, 2));
     const validated = settingsSchema.parse(data);
+    console.log("[Settings] Validated data:", JSON.stringify(validated, null, 2));
     let settings = await prisma.settings.findFirst();
 
     if (!settings) {
@@ -92,7 +95,12 @@ export async function updateSettingsAction(data: any) {
     revalidatePath("/testimonials/submit");
     return { success: true };
   } catch (error: any) {
-    console.error("Error updating settings:", error);
+    console.error("[Settings] Error updating settings:", error);
+    // Return the first Zod validation error in a friendly format
+    if (error?.errors?.length) {
+      const firstErr = error.errors[0];
+      return { error: `${firstErr.path.join(".")}: ${firstErr.message}` };
+    }
     return { error: error.message || "Failed to update settings." };
   }
 }

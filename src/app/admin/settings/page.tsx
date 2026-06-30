@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Building2, MessageSquare, ShieldCheck, Loader2 } from "lucide-react";
+import { Building2, MessageSquare, Loader2, CheckCircle2, XCircle, X } from "lucide-react";
 import { getSettingsAction, updateSettingsAction } from "@/features/settings/actions";
+
+type Toast = { type: "success" | "error"; message: string } | null;
 
 type Tab = "gym" | "whatsapp";
 
@@ -10,8 +12,12 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("gym");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [toast, setToast] = useState<Toast>(null);
+
+  const showToast = (type: "success" | "error", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   // Form states
   const [gymName, setGymName] = useState("");
@@ -38,11 +44,10 @@ export default function SettingsPage() {
 
   const loadSettings = async () => {
     setLoading(true);
-    setError(null);
     try {
       const res = await getSettingsAction();
       if (res.error) {
-        setError(res.error);
+        showToast("error", res.error);
       } else if (res.data) {
         const d = res.data;
         setGymName(d.gymName);
@@ -63,7 +68,7 @@ export default function SettingsPage() {
         setBusinessId(d.businessId || "");
       }
     } catch (err: any) {
-      setError(err.message || "Failed to load settings.");
+      showToast("error", err.message || "Failed to load settings.");
     } finally {
       setLoading(false);
     }
@@ -71,8 +76,6 @@ export default function SettingsPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(false);
     setSaving(true);
 
     try {
@@ -95,14 +98,16 @@ export default function SettingsPage() {
         businessId: businessId || null,
       });
 
+      console.log("[Settings] Server response:", res);
+
       if (res.error) {
-        setError(res.error);
+        showToast("error", res.error);
       } else {
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
+        showToast("success", "Settings saved successfully! All changes are now live.");
       }
     } catch (err: any) {
-      setError(err.message || "Failed to save settings.");
+      console.error("[Settings] Client catch:", err);
+      showToast("error", err.message || "Failed to save settings.");
     } finally {
       setSaving(false);
     }
@@ -172,16 +177,47 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      {/* Status Messages */}
-      {error && (
-        <div className="bg-error-container/20 border border-error/30 text-error text-xs p-sm rounded-lg">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="bg-success-container/10 border border-[#10B981]/30 text-[#10B981] text-xs p-sm rounded-lg flex items-center gap-xs">
-          <ShieldCheck className="w-4 h-4" />
-          Settings successfully saved!
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          className={`fixed top-6 right-6 z-[9999] flex items-start gap-3 px-5 py-4 rounded-2xl shadow-2xl border backdrop-blur-md min-w-[320px] max-w-sm
+            animate-[slideInRight_0.35s_cubic-bezier(0.16,1,0.3,1)_both]
+            ${
+              toast.type === "success"
+                ? "bg-[#0d1f18]/95 border-[#10B981]/40 text-[#10B981]"
+                : "bg-[#1f0d0d]/95 border-red-500/40 text-red-400"
+            }`}
+          style={{ boxShadow: toast.type === "success" ? "0 8px 32px rgba(16,185,129,0.15)" : "0 8px 32px rgba(239,68,68,0.15)" }}
+        >
+          <div className="shrink-0 mt-0.5">
+            {toast.type === "success" ? (
+              <CheckCircle2 className="w-5 h-5" />
+            ) : (
+              <XCircle className="w-5 h-5" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm">
+              {toast.type === "success" ? "Changes Saved!" : "Save Failed"}
+            </p>
+            <p className="text-xs opacity-80 mt-0.5 leading-relaxed">{toast.message}</p>
+            {/* Progress bar */}
+            <div className={`mt-2 h-0.5 rounded-full ${
+              toast.type === "success" ? "bg-[#10B981]/30" : "bg-red-500/30"
+            }`}>
+              <div
+                className={`h-full rounded-full animate-[shrink_4s_linear_forwards] ${
+                  toast.type === "success" ? "bg-[#10B981]" : "bg-red-500"
+                }`}
+              />
+            </div>
+          </div>
+          <button
+            onClick={() => setToast(null)}
+            className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
