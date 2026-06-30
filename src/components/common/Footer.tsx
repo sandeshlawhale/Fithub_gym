@@ -99,15 +99,16 @@ export default async function Footer({ isLoggedIn }: FooterProps) {
               key={link.href}
               className="text-on-surface-variant hover:text-primary transition-colors text-sm"
               href={link.href}
+              prefetch={false}
             >
               {link.label}
             </Link>
           ))}
           <div className="h-6 w-px bg-outline block" />
           {isLoggedIn ? (
-            <Link className="transition-colors text-sm font-semibold text-primary" href="/admin/dashboard">Dashboard</Link>
+            <Link className="transition-colors text-sm font-semibold text-primary" href="/admin/dashboard" prefetch={false}>Dashboard</Link>
           ) : (
-            <Link className="transition-colors text-sm font-semibold text-primary" href="/auth/login">Login</Link>
+            <Link className="transition-colors text-sm font-semibold text-primary" href="/auth/login" prefetch={false}>Login</Link>
           )}
         </div>
       </div>
@@ -120,8 +121,8 @@ export default async function Footer({ isLoggedIn }: FooterProps) {
           </div>
         </div>
         <div className="flex gap-lg justify-end">
-          <Link className="hover:text-primary transition-colors" href="#">Privacy Policy</Link>
-          <Link className="hover:text-primary transition-colors" href="#">Terms of Service</Link>
+          <Link className="hover:text-primary transition-colors" href="#" prefetch={false}>Privacy Policy</Link>
+          <Link className="hover:text-primary transition-colors" href="#" prefetch={false}>Terms of Service</Link>
         </div>
       </div>
     </footer>

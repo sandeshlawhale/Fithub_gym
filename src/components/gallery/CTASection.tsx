@@ -27,12 +27,14 @@ export default function CTASection() {
           <div className="flex flex-col sm:flex-row gap-sm shrink-0 w-full md:w-auto mt-4 md:mt-0">
             <Link
               href="/memberships"
+              prefetch={false}
               className="inline-flex items-center justify-center bg-primary-container text-black font-bold py-3.5 px-6 rounded-xl hover:bg-primary transition-all font-label-md text-sm scale-95 active:scale-90 transition-transform duration-200 text-center w-full sm:w-auto"
             >
               View Membership Plans
             </Link>
             <Link
               href="/#contact"
+              prefetch={false}
               className="inline-flex items-center justify-center bg-transparent border border-outline-variant text-on-surface font-bold py-3.5 px-6 rounded-xl hover:border-primary-container hover:text-primary transition-all font-label-md text-sm scale-95 active:scale-90 transition-transform duration-200 text-center w-full sm:w-auto"
             >
               Contact Us

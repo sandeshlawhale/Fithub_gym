@@ -121,6 +121,7 @@ async function DashboardContent() {
             <Link 
               key={card.title} 
               href={card.href}
+              prefetch={false}
               className="bg-[#181818] border border-[#323232] rounded-xl p-lg flex flex-col hover:border-outline-variant hover:bg-surface-container-high transition-all duration-200 group cursor-pointer active:scale-98"
             >
               <div className="flex justify-between items-start mb-md">
@@ -210,6 +211,7 @@ async function DashboardContent() {
             <div className="flex flex-col gap-sm">
               <Link 
                 href="/admin/members/new" 
+                prefetch={false}
                 className="w-full bg-[#F59E0B] text-[#0F0F0F] font-label-md text-label-md font-bold py-3 px-md rounded-lg hover:bg-primary transition-colors flex items-center justify-center gap-sm"
               >
                 <UserPlus className="w-4 h-4" />
@@ -217,6 +219,7 @@ async function DashboardContent() {
               </Link>
               <Link 
                 href="/admin/membership-plans?new=true" 
+                prefetch={false}
                 className="w-full bg-transparent border border-[#323232] text-[#FFFFFF] font-label-md text-label-md py-3 px-md rounded-lg hover:border-outline-variant hover:bg-surface-container transition-colors flex items-center justify-center gap-sm"
               >
                 <Plus className="w-4 h-4" />
@@ -224,6 +227,7 @@ async function DashboardContent() {
               </Link>
               <Link 
                 href="/admin/membership-history" 
+                prefetch={false}
                 className="w-full bg-transparent border border-[#323232] text-[#FFFFFF] font-label-md text-label-md py-3 px-md rounded-lg hover:border-outline-variant hover:bg-surface-container transition-colors flex items-center justify-center gap-sm"
               >
                 <Download className="w-4 h-4" />
@@ -231,6 +235,7 @@ async function DashboardContent() {
               </Link>
               <Link 
                 href="/admin/testimonials?filter=pending" 
+                prefetch={false}
                 className="w-full bg-transparent border border-[#323232] text-[#FFFFFF] font-label-md text-label-md py-3 px-md rounded-lg hover:border-outline-variant hover:bg-surface-container transition-colors flex items-center justify-center gap-sm"
               >
                 <MessageSquare className="w-4 h-4" />
@@ -247,7 +252,7 @@ async function DashboardContent() {
         <div className="bg-[#181818] border border-[#323232] rounded-xl overflow-hidden">
           <div className="p-lg border-b border-[#323232] flex justify-between items-center">
             <h3 className="font-headline-md text-lg font-bold text-[#FFFFFF] m-0">Recent Registrations</h3>
-            <Link href="/admin/members" className="text-primary font-label-sm text-label-sm hover:underline">
+            <Link href="/admin/members" prefetch={false} className="text-primary font-label-sm text-label-sm hover:underline">
               View All
             </Link>
           </div>
@@ -300,7 +305,7 @@ async function DashboardContent() {
         <div className="bg-[#181818] border border-[#323232] rounded-xl overflow-hidden">
           <div className="p-lg border-b border-[#323232] flex justify-between items-center">
             <h3 className="font-headline-md text-lg font-bold text-[#FFFFFF] m-0">Recent Transactions</h3>
-            <Link href="/admin/membership-history" className="text-primary font-label-sm text-label-sm hover:underline">
+            <Link href="/admin/membership-history" prefetch={false} className="text-primary font-label-sm text-label-sm hover:underline">
               View All
             </Link>
           </div>

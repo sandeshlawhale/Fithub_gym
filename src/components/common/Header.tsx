@@ -38,7 +38,7 @@ export default function Header({ isLoggedIn }: HeaderProps) {
       >
         <div className="flex justify-between items-center h-full px-container-margin max-w-7xl mx-auto w-full">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-md hover:opacity-90 transition-opacity">
+          <Link href="/" prefetch={false} className="flex items-center gap-md hover:opacity-90 transition-opacity">
             <Logo />
           </Link>
 
@@ -49,17 +49,18 @@ export default function Header({ isLoggedIn }: HeaderProps) {
                 key={link.href}
                 className="text-on-surface-variant hover:text-primary transition-colors duration-200"
                 href={link.href}
+                prefetch={false}
               >
                 {link.label}
               </Link>
             ))}
 
             {isLoggedIn ? (
-              <Link href="/admin/dashboard" className="text-primary">
+              <Link href="/admin/dashboard" prefetch={false} className="text-primary">
                 Dashboard
               </Link>
             ) : (
-              <Link href="/auth/login" className="text-primary">
+              <Link href="/auth/login" prefetch={false} className="text-primary">
                 Login
               </Link>
             )}
@@ -93,6 +94,7 @@ export default function Header({ isLoggedIn }: HeaderProps) {
               key={link.href}
               className="text-on-surface hover:text-primary transition-colors"
               href={link.href}
+              prefetch={false}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {link.label}
@@ -102,6 +104,7 @@ export default function Header({ isLoggedIn }: HeaderProps) {
           {isLoggedIn ? (
             <Link
               href="/admin/dashboard"
+              prefetch={false}
               className="text-primary"
               onClick={() => setIsMobileMenuOpen(false)}
             >
@@ -110,6 +113,7 @@ export default function Header({ isLoggedIn }: HeaderProps) {
           ) : (
             <Link
               href="/auth/login"
+              prefetch={false}
               className="text-primary"
               onClick={() => setIsMobileMenuOpen(false)}
             >

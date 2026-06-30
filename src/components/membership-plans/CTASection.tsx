@@ -25,6 +25,7 @@ export default function CTASection() {
           <div className="shrink-0 w-full md:w-auto">
             <Link
               href="/#contact"
+              prefetch={false}
               className="inline-flex items-center justify-center bg-primary-container text-black font-bold py-3.5 px-8 rounded-xl hover:bg-primary transition-all font-label-md text-sm scale-95 active:scale-90 transition-transform duration-200 w-full text-center"
             >
               Contact Us

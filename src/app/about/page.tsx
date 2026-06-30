@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import AboutContainer from "@/components/about/AboutContainer";
+import StandardOfExcellence from "@/components/landing/StandardOfExcellence";
 
 export const metadata: Metadata = {
   title: "About Us | The FitHub Gym",
@@ -42,7 +43,7 @@ export default async function AboutPage() {
 
       {/* Main Content Area */}
       <main className="pt-20 flex-grow">
-        <AboutContainer />
+        <AboutContainer whyChooseSection={<StandardOfExcellence />} />
       </main>
 
       {/* Global Footer */}

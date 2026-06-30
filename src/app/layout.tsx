@@ -46,6 +46,7 @@ export const metadata: Metadata = {
 };
 
 import { Suspense } from "react";
+import PageTransition from "@/components/common/PageTransition";
 
 export default function RootLayout({
   children,
@@ -112,7 +113,9 @@ export default function RootLayout({
       </head>
       <body className="bg-background text-on-background min-h-screen font-sans antialiased">
         <Suspense fallback={null}>
-          {children}
+          <PageTransition>
+            {children}
+          </PageTransition>
           <FloatingElements />
         </Suspense>
       </body>

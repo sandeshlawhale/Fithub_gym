@@ -163,6 +163,7 @@ export default function GalleryContainer({ initialItems }: GalleryContainerProps
                 </p>
                 <Link
                   href="/"
+                  prefetch={false}
                   className="inline-flex items-center gap-xs bg-primary-container text-black font-bold py-2.5 px-6 rounded-xl hover:bg-primary transition-all font-label-md text-xs uppercase tracking-wider scale-95 active:scale-90 transition-transform duration-200"
                 >
                   <Home className="w-4 h-4" />

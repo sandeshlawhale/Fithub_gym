@@ -76,6 +76,7 @@ async function MembersContent({ searchParams }: PageProps) {
         </div>
         <Link
           href="/admin/members/new"
+          prefetch={false}
           className="bg-primary-container text-on-primary-container font-label-md text-label-md font-bold px-lg py-md rounded-xl flex items-center gap-sm active:scale-95 transition-transform shrink-0 cursor-pointer hover:bg-primary"
         >
           <UserPlus className="w-[20px] h-[20px]" />
@@ -215,6 +216,7 @@ async function MembersContent({ searchParams }: PageProps) {
             <div className="flex items-center gap-xs">
               <Link
                 href={`/admin/members?page=${prevPage}&search=${search}&status=${status}&planId=${planId}`}
+                prefetch={false}
                 className={`w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors ${page === 1 ? "pointer-events-none opacity-50" : ""
                   }`}
               >
@@ -227,6 +229,7 @@ async function MembersContent({ searchParams }: PageProps) {
                   <Link
                     key={p}
                     href={`/admin/members?page=${p}&search=${search}&status=${status}&planId=${planId}`}
+                    prefetch={false}
                     className={`w-8 h-8 flex items-center justify-center rounded-lg font-label-md font-bold transition-colors ${isCurrent
                       ? "bg-primary-container text-on-primary-container"
                       : "border border-outline-variant text-on-surface-variant hover:bg-surface-container-high"
@@ -239,6 +242,7 @@ async function MembersContent({ searchParams }: PageProps) {
 
               <Link
                 href={`/admin/members?page=${nextPage}&search=${search}&status=${status}&planId=${planId}`}
+                prefetch={false}
                 className={`w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors ${page === result.totalPages ? "pointer-events-none opacity-50" : ""
                   }`}
               >

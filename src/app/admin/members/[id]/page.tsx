@@ -71,6 +71,7 @@ async function MemberDetailContent({ params }: PageProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-md">
         <Link
           href="/admin/members"
+          prefetch={false}
           className="text-on-surface-variant hover:text-on-surface flex items-center gap-xs font-label-md text-sm self-start"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -79,6 +80,7 @@ async function MemberDetailContent({ params }: PageProps) {
         <div className="flex gap-sm self-end sm:self-auto">
           <Link
             href={`/admin/membership-history?search=${encodeURIComponent(member.phone)}`}
+            prefetch={false}
             className="border border-[#323232] text-white hover:bg-surface-container-high font-bold rounded-xl px-lg py-3 transition-colors font-label-md text-sm flex items-center gap-xs cursor-pointer"
           >
             <History className="w-4 h-4" />
@@ -86,6 +88,7 @@ async function MemberDetailContent({ params }: PageProps) {
           </Link>
           <Link
             href={`/admin/members/${member.id}/renew`}
+            prefetch={false}
             className="bg-primary-container text-on-primary-container font-bold rounded-xl px-lg py-3 hover:bg-primary transition-all font-label-md text-sm flex items-center gap-xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
@@ -106,6 +109,7 @@ async function MemberDetailContent({ params }: PageProps) {
               </h3>
               <Link
                 href={`/admin/members/${member.id}/edit`}
+                prefetch={false}
                 className="text-primary hover:text-primary-container transition-colors font-label-md text-xs flex items-center gap-xs cursor-pointer font-bold"
               >
                 <Edit className="w-3.5 h-3.5" />
@@ -384,6 +388,7 @@ async function MemberDetailContent({ params }: PageProps) {
                 </p>
                 <Link
                   href={`/admin/members/${partner.id}`}
+                  prefetch={false}
                   className="text-primary font-label-md text-xs hover:underline mt-sm self-start"
                 >
                   View Partner Profile

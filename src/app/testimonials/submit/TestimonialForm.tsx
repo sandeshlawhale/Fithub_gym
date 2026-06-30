@@ -75,6 +75,7 @@ export default function TestimonialForm() {
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link
             href="/"
+            prefetch={false}
             className="px-6 py-3 rounded-xl bg-primary-container text-on-primary-container font-label-md font-bold hover:bg-primary active:scale-95 transition-all text-center"
           >
             Back to Home
@@ -100,7 +101,7 @@ export default function TestimonialForm() {
   return (
     <div className="max-w-xl mx-auto bg-surface border border-outline-variant rounded-2xl p-6 md:p-8 shadow-xl relative">
       <div className="flex items-center gap-2 mb-6">
-        <Link href="/" className="text-secondary hover:text-white transition-colors flex items-center gap-1 text-xs">
+        <Link href="/" prefetch={false} className="text-secondary hover:text-white transition-colors flex items-center gap-1 text-xs">
           <ArrowLeft className="w-4.5 h-4.5" /> Back to Home
         </Link>
       </div>

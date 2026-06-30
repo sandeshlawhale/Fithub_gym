@@ -115,7 +115,7 @@ async function MembershipHistoryContent({ searchParams }: PageProps) {
                         {new Date(log.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-md px-lg font-medium text-white">
-                        <Link href={`/admin/members/${log.memberId}`} className="hover:text-primary transition-colors">
+                        <Link href={`/admin/members/${log.memberId}`} prefetch={false} className="hover:text-primary transition-colors">
                           {log.memberName}
                         </Link>
                       </td>
@@ -176,7 +176,8 @@ async function MembershipHistoryContent({ searchParams }: PageProps) {
             </p>
             <div className="flex items-center gap-xs">
               <Link
-                href={`/admin/membership-history?page=${prevPage}&search=${search}&status=${status}&planId=${planId}`}
+                href={`/admin/membership-history?page=${prevPage}&search=${search}&status=${status}&planId=${planId}&dateRange=${dateRange}`}
+                prefetch={false}
                 className={`w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors ${
                   page === 1 ? "pointer-events-none opacity-50" : ""
                 }`}
@@ -189,7 +190,8 @@ async function MembershipHistoryContent({ searchParams }: PageProps) {
                 return (
                   <Link
                     key={p}
-                    href={`/admin/membership-history?page=${p}&search=${search}&status=${status}&planId=${planId}`}
+                    href={`/admin/membership-history?page=${p}&search=${search}&status=${status}&planId=${planId}&dateRange=${dateRange}`}
+                    prefetch={false}
                     className={`w-8 h-8 flex items-center justify-center rounded-lg font-label-md font-bold transition-colors ${
                       isCurrent
                         ? "bg-primary-container text-on-primary-container"
@@ -202,7 +204,8 @@ async function MembershipHistoryContent({ searchParams }: PageProps) {
               })}
 
               <Link
-                href={`/admin/membership-history?page=${nextPage}&search=${search}&status=${status}&planId=${planId}`}
+                href={`/admin/membership-history?page=${nextPage}&search=${search}&status=${status}&planId=${planId}&dateRange=${dateRange}`}
+                prefetch={false}
                 className={`w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors ${
                   page === result.totalPages ? "pointer-events-none opacity-50" : ""
                 }`}

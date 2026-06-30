@@ -77,6 +77,7 @@ export default function TestimonialsSection({ testimonials }: TestimonialsSectio
         <div className="flex flex-col sm:flex-row items-center gap-sm">
           <Link
             href="/testimonials/submit"
+            prefetch={false}
             className="inline-flex items-center gap-xs bg-transparent border border-outline-variant hover:border-primary-container hover:text-primary-container text-on-background font-bold py-2.5 px-6 rounded-xl text-sm transition-all duration-300 active:scale-95 cursor-pointer  "
           >
             <Share2 width={16} height={16} />

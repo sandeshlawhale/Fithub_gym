@@ -18,7 +18,7 @@ import {
   Sparkles,
   ArrowRight
 } from "lucide-react";
-import StandardOfExcellence from "@/components/landing/StandardOfExcellence";
+// StandardOfExcellence is passed as a Server Component prop to avoid async Client Component issues
 
 // Variants for Framer Motion scroll animations
 const fadeInUp = {
@@ -49,7 +49,11 @@ const imageReveal = {
   }
 };
 
-export default function AboutContainer() {
+interface AboutContainerProps {
+  whyChooseSection: React.ReactNode;
+}
+
+export default function AboutContainer({ whyChooseSection }: AboutContainerProps) {
   const missionVision = [
     {
       title: "Our Mission",
@@ -401,7 +405,7 @@ export default function AboutContainer() {
 
       {/* 6. WHY CHOOSE THE FITHUB GYM (Reused landing component) */}
       <section className="border-y border-outline-variant/30">
-        <StandardOfExcellence />
+        {whyChooseSection}
       </section>
 
       {/* 7. FINAL CTA SECTION */}
@@ -422,6 +426,7 @@ export default function AboutContainer() {
           <div className="flex flex-col sm:flex-row gap-md justify-center items-center w-full sm:w-auto">
             <Link
               href="/memberships"
+              prefetch={false}
               className="bg-primary-container text-black font-bold py-3 px-8 rounded-xl hover:bg-primary transition-colors font-label-md text-sm flex items-center gap-sm active:scale-98 transition-transform w-full sm:w-auto justify-center"
             >
               View Membership Plans
@@ -429,6 +434,7 @@ export default function AboutContainer() {
             </Link>
             <Link
               href="/#contact"
+              prefetch={false}
               className="bg-transparent border border-outline-variant text-on-surface font-bold py-3 px-8 rounded-xl hover:border-primary-container hover:text-primary transition-colors font-label-md text-sm active:scale-98 transition-transform w-full sm:w-auto justify-center"
             >
               Contact Us

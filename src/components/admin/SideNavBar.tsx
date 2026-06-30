@@ -66,6 +66,7 @@ export default function SideNavBar({ isOpen, onClose, adminName = "FitHub Admin"
                 key={item.name}
                 href={item.href}
                 onClick={onClose}
+                prefetch={false}
                 className={`flex items-center gap-md px-md py-sm rounded-lg transition-all duration-200 ease-in-out font-label-md text-label-md ${isActive
                     ? "border-l-2 border-primary-container bg-surface-container-highest text-primary font-bold"
                     : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"

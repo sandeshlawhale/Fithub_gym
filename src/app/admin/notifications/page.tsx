@@ -177,6 +177,7 @@ async function NotificationsContent({ searchParams }: PageProps) {
             <div className="flex gap-xs">
               <Link
                 href={`/admin/notifications?page=${prevPage}&search=${encodeURIComponent(search)}&type=${type}`}
+                prefetch={false}
                 className={`w-[36px] h-[36px] border border-[#323232] rounded-lg flex items-center justify-center hover:bg-[#181818] transition-colors text-white ${
                   page <= 1 ? "pointer-events-none opacity-40" : ""
                 }`}
@@ -185,6 +186,7 @@ async function NotificationsContent({ searchParams }: PageProps) {
               </Link>
               <Link
                 href={`/admin/notifications?page=${nextPage}&search=${encodeURIComponent(search)}&type=${type}`}
+                prefetch={false}
                 className={`w-[36px] h-[36px] border border-[#323232] rounded-lg flex items-center justify-center hover:bg-[#181818] transition-colors text-white ${
                   page >= result.totalPages ? "pointer-events-none opacity-40" : ""
                 }`}
