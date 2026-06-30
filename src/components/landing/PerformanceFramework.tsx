@@ -56,14 +56,14 @@ export default function PerformanceFramework() {
           </div>
         </div>
 
-        {/* Spinning decorative frame surrounding gallery3.jpeg */}
+        {/* Spinning decorative frame surrounding gallery3.webp */}
         <div className="flex-1 w-full relative">
           <div className="aspect-square w-full max-w-md mx-auto rounded-full border border-outline-variant flex items-center justify-center relative overflow-hidden p-lg">
             <div className="absolute inset-0 border border-primary-container/20 rounded-full animate-[spin_60s_linear_infinite]"></div>
             <div className="absolute inset-xl border border-outline-variant rounded-full border-dashed animate-[spin_40s_linear_infinite_reverse]"></div>
             <div
               className="w-full h-full rounded-full bg-cover bg-center grayscale contrast-125 mix-blend-luminosity opacity-80"
-              style={{ backgroundImage: "url('/assets/gallery/gallery3.jpeg')" }}
+              style={{ backgroundImage: "url('/assets/gallery/gallery3.webp')" }}
             ></div>
             <div className="absolute inset-0 bg-gradient-to-tr from-surface/80 to-transparent rounded-full mix-blend-overlay"></div>
           </div>

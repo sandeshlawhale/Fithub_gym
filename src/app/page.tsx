@@ -1,12 +1,15 @@
 import { prisma } from "@/lib/prisma";
-import Header from "@/components/landing/Header";
+import Header from "@/components/common/Header";
 import HeroSection from "@/components/landing/HeroSection";
+import StatsSection from "@/components/landing/StatsSection";
 import StandardOfExcellence from "@/components/landing/StandardOfExcellence";
 import PerformanceFramework from "@/components/landing/PerformanceFramework";
 import ProvingGrounds from "@/components/landing/ProvingGrounds";
 import AccessTiers from "@/components/landing/AccessTiers";
+import TestimonialsSection from "@/components/landing/TestimonialsSection";
+import FAQSection from "@/components/common/FAQSection";
 import ConnectWithUs from "@/components/landing/ConnectWithUs";
-import Footer from "@/components/landing/Footer";
+import Footer from "@/components/common/Footer";
 import { auth } from "@/auth";
 
 
@@ -14,9 +17,20 @@ export default async function LandingPage() {
   const session = await auth();
   const isLoggedIn = !!session?.user;
 
+  // Fetch unique active member count for statistics
+  const memberCount = await prisma.member.count({
+    where: { isDeleted: false },
+  });
+
   // Fetch active plans to display in the pricing grid
   const allPlans = await prisma.membershipPlan.findMany({
     where: { isActive: true },
+  });
+
+  // Fetch approved testimonials
+  const testimonials = await prisma.testimonial.findMany({
+    where: { isApproved: true },
+    orderBy: { createdAt: "desc" },
   });
 
   // Filter for exactly Monthly (1 month), Quarterly (3 months), and Annually (12 months)
@@ -24,7 +38,7 @@ export default async function LandingPage() {
   const getBestPlanForDuration = (duration: number) => {
     const durationPlans = allPlans.filter(p => p.durationMonths === duration);
     if (durationPlans.length === 0) return null;
-    return durationPlans.sort((a, b) => Number(b.price) - Number(a.price))[0];
+    return durationPlans.sort((a, b) => Number(a.price) - Number(b.price))[0];
   };
 
   const monthlyPlan = getBestPlanForDuration(1);
@@ -40,6 +54,8 @@ export default async function LandingPage() {
       <main className="pt-20">
         <HeroSection />
 
+        <StatsSection memberCount={memberCount} />
+
         <StandardOfExcellence />
 
         <PerformanceFramework />
@@ -48,6 +64,10 @@ export default async function LandingPage() {
 
         <AccessTiers plans={plans} />
 
+        <TestimonialsSection testimonials={testimonials} />
+
+        <FAQSection />
+
         <ConnectWithUs />
       </main>
 
@@ -55,3 +75,4 @@ export default async function LandingPage() {
     </div>
   );
 }
+

@@ -12,7 +12,8 @@ import {
   Settings, 
   LogOut, 
   X,
-  Dumbbell
+  Dumbbell,
+  MessageSquare
 } from "lucide-react";
 
 interface SideNavBarProps {
@@ -29,9 +30,11 @@ export default function SideNavBar({ isOpen, onClose, adminName = "FitHub Admin"
     { name: "Members", href: "/admin/members", icon: Users },
     { name: "Membership (History)", href: "/admin/membership-history", icon: History },
     { name: "Membership Plans", href: "/admin/membership-plans", icon: CreditCard },
+    { name: "Testimonials", href: "/admin/testimonials", icon: MessageSquare },
     // { name: "Notifications", href: "/admin/notifications", icon: Bell },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
+
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/auth/login" });

@@ -1,12 +1,16 @@
 const gallerySlides = [
-  { src: "/assets/gallery/gallery4.jpeg", title: "Main Training Floor" },
-  { src: "/assets/gallery/gallery5.jpeg", title: "Lifting Platforms" },
-  { src: "/assets/gallery/gallery6.jpeg", title: "Functional Turf" },
-  { src: "/assets/gallery/gallery7.jpeg", title: "Strength Zone" },
-  { src: "/assets/gallery/gallery9.jpeg", title: "Cardio Arena" },
-  { src: "/assets/gallery/gallery10.jpeg", title: "Group Class Studio" },
-  { src: "/assets/gallery/gallery11.jpeg", title: "Combat Zone" },
-  { src: "/assets/gallery/gallery12.jpeg", title: "Recovery Suite" },
+  { src: "/assets/gallery/hero.webp" },
+  { src: "/assets/gallery/gallery1.webp" },
+  { src: "/assets/gallery/gallery2.webp" },
+  { src: "/assets/gallery/gallery3.webp" },
+  { src: "/assets/gallery/gallery4.webp" },
+  { src: "/assets/gallery/gallery5.webp" },
+  { src: "/assets/gallery/gallery6.webp" },
+  { src: "/assets/gallery/gallery7.webp" },
+  { src: "/assets/gallery/gallery9.webp" },
+  { src: "/assets/gallery/gallery10.webp" },
+  { src: "/assets/gallery/gallery11.webp" },
+  { src: "/assets/gallery/gallery12.webp" },
 ];
 
 export default function ProvingGrounds() {
@@ -14,11 +18,11 @@ export default function ProvingGrounds() {
     <section className="py-16 bg-surface-container-lowest" id="gallery">
       <div className="max-w-7xl mx-auto px-container-margin space-y-xl">
         <div>
-          <h2 className="font-display text-4xl md:text-5xl font-extrabold text-on-background uppercase tracking-tight">
-            The Proving Grounds
+          <h2 className="font-display text-3xl md:text-4xl font-extrabold text-on-background uppercase tracking-tight">
+            EXPLORE OUR GYM
           </h2>
           <p className="font-body-md text-body-md text-secondary mt-xs">
-            A facility designed to inspire. Explore our specialized workout zones.
+            Take a look inside The FitHub Gym and discover the spaces where your fitness journey begins.
           </p>
         </div>
 
@@ -35,15 +39,15 @@ export default function ProvingGrounds() {
               <img
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 src={slide.src}
-                alt={slide.title}
+                alt={`The FitHub Gym training zone - image ${index + 1}`}
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent"></div>
-              <div className="absolute bottom-lg left-lg">
+              {/* <div className="absolute bottom-lg left-lg">
                 <h3 className="font-headline-md text-headline-md text-on-background font-bold uppercase tracking-tight">
                   {slide.title}
                 </h3>
-              </div>
+              </div> */}
             </div>
           ))}
         </div>

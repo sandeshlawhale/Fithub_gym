@@ -68,7 +68,78 @@ async function main() {
     console.log('Membership plans already exist, skipping.');
   }
 
+  // 4. Seed Default Testimonials
+  const testimonialsCount = await prisma.testimonial.count();
+  if (testimonialsCount === 0) {
+    const defaultTestimonials = [
+      {
+        name: "Rahul Sharma",
+        email: "rahul.sharma@example.com",
+        rating: 5,
+        review: "The FitHub Gym has completely transformed my fitness routine. The equipment is top-notch, and the trainers are incredibly knowledgeable and supportive. Highly recommended!",
+        consent: true,
+        isApproved: true,
+      },
+      {
+        name: "Priya Patel",
+        email: "priya.patel@example.com",
+        rating: 5,
+        review: "Absolutely love the vibe here! Extremely clean, modern setup, and a very comfortable environment for women. The weight training section is spacious and well-equipped.",
+        consent: true,
+        isApproved: true,
+      },
+      {
+        name: "Amit Verma",
+        email: "amit.verma@example.com",
+        rating: 4,
+        review: "Excellent facilities and helpful staff. The membership plans are very reasonable for the quality of equipment they offer. Great location too!",
+        consent: true,
+        isApproved: true,
+      },
+      {
+        name: "Sneha Reddy",
+        email: "sneha.reddy@example.com",
+        rating: 5,
+        review: "I've been training here for 3 months now. The trainers helped me structure my program perfectly. I've already seen amazing results. Best gym in Narkhed!",
+        consent: true,
+        isApproved: true,
+      },
+      {
+        name: "Vikram Singh",
+        email: "vikram.singh@example.com",
+        rating: 5,
+        review: "A premium gym that actually delivers on its promises. Solid equipment, professional trainers, and an awesome community. The black and gold aesthetic is fire!",
+        consent: true,
+        isApproved: true,
+      },
+      {
+        name: "Neha Gupta",
+        email: "neha.gupta@example.com",
+        rating: 4,
+        review: "Great experience so far! The cardio machines are brand new, and the staff is very friendly. Submitting this review to support my favorite training spot.",
+        consent: true,
+        isApproved: false,
+      },
+      {
+        name: "Rohan Das",
+        email: "rohan.das@example.com",
+        rating: 5,
+        review: "Best training facility in town! The equipment range is unmatched. Highly recommended to anyone serious about their workouts.",
+        consent: true,
+        isApproved: false,
+      }
+    ];
+
+    for (const t of defaultTestimonials) {
+      await prisma.testimonial.create({ data: t });
+    }
+    console.log("Default testimonials seeded.");
+  } else {
+    console.log("Testimonials already exist, skipping.");
+  }
+
   console.log('Seeding completed successfully!');
+
 }
 
 main()

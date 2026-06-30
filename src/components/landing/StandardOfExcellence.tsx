@@ -5,7 +5,7 @@ const excellenceCards = [
     icon: "fitness_center",
     title: "MODERN TRAINING EQUIPMENT",
     description: "Train with a complete range of modern strength machines, benches, cable stations, free weights, and squat racks designed for safe and effective workouts.",
-    bgImage: "/assets/gallery/gallery1.jpeg",
+    bgImage: "/assets/gallery/gallery1.webp",
     overlayClass: "bg-gradient-to-t from-surface-container via-surface-container/80 to-transparent",
     contentClass: "justify-end",
   },
@@ -23,7 +23,7 @@ const excellenceCards = [
     icon: "key",
     title: "CARDIO & FAT LOSS ZONE",
     description: "Burn calories and improve endurance with treadmills, exercise bikes, and dedicated cardio equipment suitable for every fitness level.",
-    bgImage: "/assets/gallery/gallery6.jpeg",
+    bgImage: "/assets/gallery/gallery6.webp",
     overlayClass: "bg-gradient-to-r from-surface-container via-surface-container/90 to-transparent",
     contentClass: "justify-end",
   },
@@ -33,7 +33,7 @@ const excellenceCards = [
     icon: "spa",
     title: "CLEAN & MOTIVATING ENVIRONMENT",
     description: "A spacious, clean, and motivating atmosphere that helps you stay focused and enjoy every workout.",
-    bgImage: "/assets/gallery/gallery2.jpeg",
+    bgImage: "/assets/gallery/gallery2.webp",
     overlayClass: "bg-gradient-to-r from-surface-container via-surface-container/90 to-transparent",
     contentClass: "justify-center w-full md:w-2/3",
   },
@@ -41,7 +41,7 @@ const excellenceCards = [
 
 export default function StandardOfExcellence() {
   return (
-    <section className="py-16 bg-surface-container-lowest" id="training">
+    <section className="py-16 bg-surface-container-lowest bg-linear-to-b from-surface-container-lowest to-surface-container" id="training">
       <div className="max-w-7xl px-container-margin mx-auto space-y-lg">
         <div className="text-center space-y-sm max-w-3xl mx-auto">
           <h2 className="font-display text-3xl md:text-4xl font-extrabold text-on-background uppercase tracking-tight">
