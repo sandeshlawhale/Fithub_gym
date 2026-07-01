@@ -16,7 +16,6 @@ interface ExportPDFButtonProps {
   search: string;
   status: string;
   planId: string;
-  dateRange: string;
   plans: PlanOption[];
 }
 
@@ -25,9 +24,10 @@ const STATUS_OPTIONS = [
   { value: "expiring_soon", label: "Expiring Soon" },
   { value: "upcoming", label: "Upcoming" },
   { value: "expired", label: "Expired" },
+  { value: "expired_last_30_days", label: "Expired in Last 30 Days" },
 ];
 
-export default function ExportPDFButton({ search, status, planId, dateRange, plans }: ExportPDFButtonProps) {
+export default function ExportPDFButton({ search, status, planId, plans }: ExportPDFButtonProps) {
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExportPDF = async () => {
@@ -37,7 +37,6 @@ export default function ExportPDFButton({ search, status, planId, dateRange, pla
         search,
         status,
         planId,
-        dateRange,
       });
 
       if (!res.success || !res.data) {
@@ -96,9 +95,7 @@ export default function ExportPDFButton({ search, status, planId, dateRange, pla
         const label = plans.find(p => p.id === planId)?.name || planId;
         activeFiltersText.push(`Plan: ${label}`);
       }
-      if (dateRange && dateRange !== "all_time") {
-        activeFiltersText.push(`Time Period: ${dateRange === "current_month" ? "Current Month" : dateRange}`);
-      }
+
       
       if (activeFiltersText.length === 0) {
         activeFiltersText.push("None (All records)");

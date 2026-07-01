@@ -259,6 +259,7 @@ export class MembershipService {
     search = "",
     status = "",
     planId = "",
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     dateRange = "all_time",
   }: {
     page?: number;
@@ -275,28 +276,49 @@ export class MembershipService {
     const conditions: any[] = [];
 
     if (search) {
+      const trimmedSearch = search.trim();
+      const parts = trimmedSearch.split(/\s+/);
+      let memberOrConditions: any[] = [
+        { firstName: { contains: trimmedSearch, mode: "insensitive" } },
+        { lastName: { contains: trimmedSearch, mode: "insensitive" } },
+        { phone: { contains: trimmedSearch, mode: "insensitive" } },
+        { email: { contains: trimmedSearch, mode: "insensitive" } },
+      ];
+
+      if (parts.length >= 2) {
+        const firstPart = parts[0];
+        const lastPart = parts.slice(1).join(" ");
+        const reverseFirstPart = parts[parts.length - 1];
+        const reverseLastPart = parts.slice(0, parts.length - 1).join(" ");
+
+        memberOrConditions.push(
+          {
+            AND: [
+              { firstName: { contains: firstPart, mode: "insensitive" } },
+              { lastName: { contains: lastPart, mode: "insensitive" } },
+            ],
+          },
+          {
+            AND: [
+              { firstName: { contains: reverseLastPart, mode: "insensitive" } },
+              { lastName: { contains: reverseFirstPart, mode: "insensitive" } },
+            ],
+          }
+        );
+      }
+
       conditions.push({
         OR: [
           {
             member: {
-              OR: [
-                { firstName: { contains: search, mode: "insensitive" } },
-                { lastName: { contains: search, mode: "insensitive" } },
-                { phone: { contains: search, mode: "insensitive" } },
-                { email: { contains: search, mode: "insensitive" } },
-              ],
+              OR: memberOrConditions,
             },
           },
           {
             coupleGroup: {
               members: {
                 some: {
-                  OR: [
-                    { firstName: { contains: search, mode: "insensitive" } },
-                    { lastName: { contains: search, mode: "insensitive" } },
-                    { phone: { contains: search, mode: "insensitive" } },
-                    { email: { contains: search, mode: "insensitive" } },
-                  ],
+                  OR: memberOrConditions,
                 },
               },
             },
@@ -334,26 +356,21 @@ export class MembershipService {
         conditions.push({
           endDate: { lt: todayStart },
         });
+      } else if (status === "expired_last_30_days") {
+        const thirtyDaysAgo = new Date(todayStart);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        conditions.push({
+          endDate: {
+            lt: todayStart,
+            gte: thirtyDaysAgo,
+          },
+        });
       } else if (status === "upcoming") {
         conditions.push({
           startDate: { gt: todayEnd },
         });
       }
-    }
-
-    if (dateRange === "current_month") {
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      startOfMonth.setHours(0, 0, 0, 0);
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      endOfMonth.setHours(23, 59, 59, 999);
-
-      conditions.push({
-        startDate: {
-          gte: startOfMonth,
-          lte: endOfMonth,
-        },
-      });
     }
 
     if (planId) {

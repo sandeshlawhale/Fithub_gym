@@ -48,7 +48,7 @@ async function DashboardContent() {
       trendType: "up",
       color: "text-green-500",
       bg: "bg-green-500/10",
-      href: "/admin/membership-history?status=active&dateRange=current_month"
+      href: "/admin/membership-history?status=active"
     },
     {
       title: "Expiring Soon",
@@ -58,17 +58,17 @@ async function DashboardContent() {
       trendType: "warning",
       color: "text-amber-500",
       bg: "bg-amber-500/10",
-      href: "/admin/membership-history?status=expiring_soon&dateRange=current_month"
+      href: "/admin/membership-history?status=expiring_soon"
     },
     {
-      title: "Expired Members",
+      title: "Expired Last 30 Days",
       value: summary.expiredMembers.toLocaleString("en-IN"),
       icon: UserX,
       trend: "2% down",
       trendType: "down",
       color: "text-error",
       bg: "bg-error/10",
-      href: "/admin/membership-history?status=expired&dateRange=current_month"
+      href: "/admin/membership-history?status=expired_last_30_days"
     },
     {
       title: "Monthly Revenue",
@@ -78,7 +78,7 @@ async function DashboardContent() {
       trendType: "up",
       color: "text-primary-container",
       bg: "bg-primary-container/10",
-      href: "/admin/membership-history?dateRange=current_month"
+      href: "/admin/membership-history"
     }
   ];
 

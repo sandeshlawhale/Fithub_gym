@@ -460,14 +460,40 @@ export async function searchMembersAction(query: string) {
     if (!query || query.trim().length < 2) {
       return { success: true, data: [] };
     }
+    const trimmedQuery = query.trim();
+    const parts = trimmedQuery.split(/\s+/);
+    let orConditions: any[] = [
+      { firstName: { contains: trimmedQuery, mode: "insensitive" } },
+      { lastName: { contains: trimmedQuery, mode: "insensitive" } },
+      { phone: { contains: trimmedQuery, mode: "insensitive" } },
+    ];
+
+    if (parts.length >= 2) {
+      const firstPart = parts[0];
+      const lastPart = parts.slice(1).join(" ");
+      const reverseFirstPart = parts[parts.length - 1];
+      const reverseLastPart = parts.slice(0, parts.length - 1).join(" ");
+
+      orConditions.push(
+        {
+          AND: [
+            { firstName: { contains: firstPart, mode: "insensitive" } },
+            { lastName: { contains: lastPart, mode: "insensitive" } },
+          ],
+        },
+        {
+          AND: [
+            { firstName: { contains: reverseLastPart, mode: "insensitive" } },
+            { lastName: { contains: reverseFirstPart, mode: "insensitive" } },
+          ],
+        }
+      );
+    }
+
     const members = await prisma.member.findMany({
       where: {
         isDeleted: false,
-        OR: [
-          { firstName: { contains: query, mode: "insensitive" } },
-          { lastName: { contains: query, mode: "insensitive" } },
-          { phone: { contains: query, mode: "insensitive" } },
-        ],
+        OR: orConditions,
       },
       take: 10,
       select: {

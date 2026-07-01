@@ -30,12 +30,38 @@ export class MemberService {
     const where: any = { isDeleted: false };
 
     if (search) {
-      where.OR = [
-        { firstName: { contains: search, mode: "insensitive" } },
-        { lastName: { contains: search, mode: "insensitive" } },
-        { phone: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
+      const trimmedSearch = search.trim();
+      const parts = trimmedSearch.split(/\s+/);
+      let orConditions: any[] = [
+        { firstName: { contains: trimmedSearch, mode: "insensitive" } },
+        { lastName: { contains: trimmedSearch, mode: "insensitive" } },
+        { phone: { contains: trimmedSearch, mode: "insensitive" } },
+        { email: { contains: trimmedSearch, mode: "insensitive" } },
       ];
+
+      if (parts.length >= 2) {
+        const firstPart = parts[0];
+        const lastPart = parts.slice(1).join(" ");
+        const reverseFirstPart = parts[parts.length - 1];
+        const reverseLastPart = parts.slice(0, parts.length - 1).join(" ");
+
+        orConditions.push(
+          {
+            AND: [
+              { firstName: { contains: firstPart, mode: "insensitive" } },
+              { lastName: { contains: lastPart, mode: "insensitive" } },
+            ],
+          },
+          {
+            AND: [
+              { firstName: { contains: reverseLastPart, mode: "insensitive" } },
+              { lastName: { contains: reverseFirstPart, mode: "insensitive" } },
+            ],
+          }
+        );
+      }
+
+      where.OR = orConditions;
     }
 
     if (status) {
