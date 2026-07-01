@@ -4,6 +4,7 @@ import { getSettings } from "@/features/settings/actions";
 
 export interface CreateMembershipInput {
   memberId: string;
+  partnerMemberId?: string;
   coupleGroupId?: string;
   membershipPlanId?: string;
   customPlanName?: string;
@@ -17,18 +18,25 @@ export interface CreateMembershipInput {
 }
 
 export class MembershipService {
-  static async validateDates(memberId: string, startDate: Date, endDate: Date, currentMembershipId?: string) {
+  static async validateDates(
+    memberId: string,
+    startDate: Date,
+    endDate: Date,
+    currentMembershipId?: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    txClient: any = prisma
+  ) {
     if (endDate <= startDate) {
       throw new Error("End date must be after the start date.");
     }
 
-    const member = await prisma.member.findUnique({
+    const member = await txClient.member.findUnique({
       where: { id: memberId },
       select: { coupleGroupId: true },
     });
 
     // Check for overlapping membership dates for this member or their couple group
-    const overlapping = await prisma.membership.findFirst({
+    const overlapping = await txClient.membership.findFirst({
       where: {
         OR: [
           { memberId },
@@ -64,36 +72,116 @@ export class MembershipService {
     }
   }
 
-  static async createMembership(data: CreateMembershipInput) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static async createMembership(data: CreateMembershipInput, txClient?: any) {
     // 1. Validation checks
     if (data.amount < 0) throw new Error("Amount cannot be negative.");
     if (data.registrationFee < 0) throw new Error("Registration fee cannot be negative.");
     
-    await this.validateDates(data.memberId, data.startDate, data.endDate);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const execute = async (tx: any) => {
+      // Find the plan to check its memberType
+      let isCouple = false;
+      if (data.partnerMemberId) {
+        isCouple = true;
+      } else if (data.membershipPlanId) {
+        const plan = await tx.membershipPlan.findUnique({
+          where: { id: data.membershipPlanId },
+        });
+        if (plan && plan.memberType === "COUPLE") {
+          isCouple = true;
+        }
+      }
 
-    // 2. Derive status
-    const start = new Date(data.startDate);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(data.endDate);
-    end.setHours(0, 0, 0, 0);
+      let coupleGroupId = data.coupleGroupId;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    let status: MembershipStatus = MembershipStatus.ACTIVE;
-    
-    if (start > today) {
-      status = MembershipStatus.UPCOMING;
-    } else if (end < today) {
-      status = MembershipStatus.EXPIRED;
+      if (isCouple) {
+        if (!data.partnerMemberId) {
+          throw new Error("Partner member ID is required for Couple membership plan.");
+        }
+
+        const m1 = await tx.member.findUnique({ where: { id: data.memberId } });
+        const m2 = await tx.member.findUnique({ where: { id: data.partnerMemberId } });
+
+        if (!m1 || m1.isDeleted) throw new Error("Primary member not found.");
+        if (!m2 || m2.isDeleted) throw new Error("Partner member not found.");
+
+        let cpGroup;
+        if (m1.coupleGroupId && m1.coupleGroupId === m2.coupleGroupId) {
+          cpGroup = await tx.coupleGroup.findUnique({ where: { id: m1.coupleGroupId } });
+        }
+
+        if (!cpGroup) {
+          cpGroup = await tx.coupleGroup.create({ data: {} });
+          await tx.member.updateMany({
+            where: { id: { in: [m1.id, m2.id] } },
+            data: { coupleGroupId: cpGroup.id },
+          });
+        }
+        coupleGroupId = cpGroup.id;
+      }
+
+      // Validate dates
+      await this.validateDates(data.memberId, data.startDate, data.endDate, undefined, tx);
+      if (isCouple && data.partnerMemberId) {
+        await this.validateDates(data.partnerMemberId, data.startDate, data.endDate, undefined, tx);
+      }
+
+      // Derive status
+      const start = new Date(data.startDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(data.endDate);
+      end.setHours(0, 0, 0, 0);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      let status: MembershipStatus = MembershipStatus.ACTIVE;
+      
+      if (start > today) {
+        status = MembershipStatus.UPCOMING;
+      } else if (end < today) {
+        status = MembershipStatus.EXPIRED;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { partnerMemberId, ...rest } = data;
+
+      if (isCouple && data.partnerMemberId) {
+        const membershipA = await tx.membership.create({
+          data: {
+            ...rest,
+            coupleGroupId,
+            status,
+          },
+        });
+
+        const membershipB = await tx.membership.create({
+          data: {
+            ...rest,
+            memberId: data.partnerMemberId,
+            coupleGroupId,
+            status,
+          },
+        });
+
+        return { primary: membershipA, partner: membershipB };
+      } else {
+        const membership = await tx.membership.create({
+          data: {
+            ...rest,
+            status,
+          },
+        });
+
+        return { primary: membership };
+      }
+    };
+
+    if (txClient) {
+      return execute(txClient);
+    } else {
+      return prisma.$transaction(async (tx) => execute(tx));
     }
-
-    // 3. Create the record
-    return prisma.membership.create({
-      data: {
-        ...data,
-        status,
-      },
-    });
   }
 
   static async renewMembership(memberId: string, input: {
@@ -158,18 +246,8 @@ export class MembershipService {
   }
 
   static async getHistoryByMember(memberId: string) {
-    const member = await prisma.member.findUnique({
-      where: { id: memberId },
-    });
-    if (!member) return [];
-
     return prisma.membership.findMany({
-      where: {
-        OR: [
-          { memberId },
-          member.coupleGroupId ? { coupleGroupId: member.coupleGroupId } : {},
-        ],
-      },
+      where: { memberId },
       orderBy: { startDate: "desc" },
       include: { membershipPlan: true },
     });

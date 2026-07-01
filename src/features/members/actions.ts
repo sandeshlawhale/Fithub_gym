@@ -41,7 +41,7 @@ export async function createSingleMemberAction(data: any) {
       member = await MemberService.createMember(memberData);
     }
 
-    const membership = await MembershipService.createMembership({
+    const { primary: membership } = await MembershipService.createMembership({
       memberId: member.id,
       membershipPlanId: validated.membershipPlanId || undefined,
       customPlanName: validated.customPlanName,
@@ -77,7 +77,7 @@ export async function createCoupleMemberAction(data: any) {
       throw new Error("Partner phone numbers must be unique.");
     }
 
-    const { m1, m2, group, membership } = await prisma.$transaction(async (tx) => {
+    const { m1, m2, cpMembershipA, cpMembershipB } = await prisma.$transaction(async (tx) => {
       // 1. Uniqueness check for member one
       const existingOne = validated.existingMemberId
         ? await tx.member.findUnique({ where: { id: validated.existingMemberId } })
@@ -154,99 +154,37 @@ export async function createCoupleMemberAction(data: any) {
         });
       }
 
-      // 4. Link both members to a Couple Group
-      let cpGroup;
-      if (member1.coupleGroupId && member1.coupleGroupId === member2.coupleGroupId) {
-        cpGroup = await tx.coupleGroup.findUnique({
-          where: { id: member1.coupleGroupId },
-        });
-      }
+      // 4. Create couple membership using MembershipService
+      const { primary: cpMembershipA, partner: cpMembershipB } = await MembershipService.createMembership({
+        memberId: member1.id,
+        partnerMemberId: member2.id,
+        membershipPlanId: validated.membershipPlanId || undefined,
+        customPlanName: validated.customPlanName,
+        amount: validated.amount,
+        registrationFee: validated.registrationFee,
+        paymentMethod: validated.paymentMethod,
+        paymentReference: validated.paymentReference,
+        startDate: validated.startDate,
+        endDate: validated.endDate,
+        remarks: validated.remarks,
+      }, tx);
 
-      if (!cpGroup) {
-        cpGroup = await tx.coupleGroup.create({
-          data: {},
-        });
-        await tx.member.updateMany({
-          where: {
-            id: { in: [member1.id, member2.id] },
-          },
-          data: {
-            coupleGroupId: cpGroup.id,
-          },
-        });
-      }
-
-      // 5. Check overlapping dates for this couple group
-      const overlapping = await tx.membership.findFirst({
-        where: {
-          OR: [
-            { memberId: member1.id },
-            { coupleGroupId: cpGroup.id },
-          ],
-          AND: [
-            {
-              OR: [
-                {
-                  startDate: { lte: validated.startDate },
-                  endDate: { gte: validated.startDate },
-                },
-                {
-                  startDate: { lte: validated.endDate },
-                  endDate: { gte: validated.endDate },
-                },
-                {
-                  startDate: { gte: validated.startDate },
-                  endDate: { lte: validated.endDate },
-                },
-              ],
-            },
-          ],
-        },
+      // Fetch the updated couple group to return
+      const cpGroup = await tx.coupleGroup.findUnique({
+        where: { id: cpMembershipA.coupleGroupId || undefined },
       });
 
-      if (overlapping) {
-        throw new Error(`The membership dates overlap with an existing membership (${overlapping.startDate.toLocaleDateString()} to ${overlapping.endDate.toLocaleDateString()}).`);
-      }
-
-      // 6. Create shared membership
-      const start = new Date(validated.startDate);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(validated.endDate);
-      end.setHours(0, 0, 0, 0);
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      let status = "ACTIVE";
-      if (start > today) {
-        status = "UPCOMING";
-      } else if (end < today) {
-        status = "EXPIRED";
-      }
-
-      const cpMembership = await tx.membership.create({
-        data: {
-          memberId: member1.id,
-          coupleGroupId: cpGroup.id,
-          membershipPlanId: validated.membershipPlanId || undefined,
-          customPlanName: validated.customPlanName,
-          amount: validated.amount,
-          registrationFee: validated.registrationFee,
-          paymentMethod: validated.paymentMethod,
-          paymentReference: validated.paymentReference,
-          startDate: validated.startDate,
-          endDate: validated.endDate,
-          remarks: validated.remarks,
-          status: status as any,
-        },
-      });
-
-      return { m1: member1, m2: member2, group: cpGroup, membership: cpMembership };
+      return { m1: member1, m2: member2, group: cpGroup, cpMembershipA, cpMembershipB };
     });
 
     // Send receipt notifications to both members
     try {
-      await WhatsAppService.sendReceipt(m1.id, membership.id);
-      await WhatsAppService.sendReceipt(m2.id, membership.id);
+      if (cpMembershipA) {
+        await WhatsAppService.sendReceipt(m1.id, cpMembershipA.id);
+      }
+      if (cpMembershipB) {
+        await WhatsAppService.sendReceipt(m2.id, cpMembershipB.id);
+      }
     } catch (wsError) {
       console.error("Failed to send WhatsApp receipts for couple:", wsError);
     }
@@ -435,39 +373,26 @@ export async function renewMembershipAction(memberId: string, data: any) {
         }
       }
 
-      // Check overlapping dates
-      const overlapping = await tx.membership.findFirst({
-        where: {
-          OR: [
-            { memberId },
-            finalCoupleGroupId ? { coupleGroupId: finalCoupleGroupId } : {},
-          ],
-          AND: [
-            {
-              OR: [
-                {
-                  startDate: { lte: validated.startDate },
-                  endDate: { gte: validated.startDate },
-                },
-                {
-                  startDate: { lte: endDate },
-                  endDate: { gte: endDate },
-                },
-                {
-                  startDate: { gte: validated.startDate },
-                  endDate: { lte: endDate },
-                },
-              ],
-            },
-          ],
-        },
-      });
-
-      if (overlapping) {
-        throw new Error(`The membership dates overlap with an existing membership (${overlapping.startDate.toLocaleDateString()} to ${overlapping.endDate.toLocaleDateString()}).`);
+      // Determine the list of members to renew
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const membersToRenew: any[] = [member];
+      if (validated.renewType === MemberType.COUPLE) {
+        if (partnerIdToSendReceipt) {
+          const partner = await tx.member.findUnique({
+            where: { id: partnerIdToSendReceipt },
+          });
+          if (partner) {
+            membersToRenew.push(partner);
+          }
+        }
       }
 
-      // Create new membership record
+      // Check overlapping dates for all members to renew
+      for (const m of membersToRenew) {
+        await MembershipService.validateDates(m.id, validated.startDate, endDate, undefined, tx);
+      }
+
+      // Create new membership record for each member
       const start = new Date(validated.startDate);
       start.setHours(0, 0, 0, 0);
       const end = new Date(endDate);
@@ -482,31 +407,40 @@ export async function renewMembershipAction(memberId: string, data: any) {
         status = MembershipStatus.EXPIRED;
       }
 
-      const newMembership = await tx.membership.create({
-        data: {
-          memberId,
-          coupleGroupId: finalCoupleGroupId,
-          membershipPlanId: validated.membershipPlanId || undefined,
-          customPlanName: validated.customPlanName,
-          amount: validated.amount,
-          registrationFee: 0.00, // Never charged on renewal
-          paymentMethod: validated.paymentMethod,
-          paymentReference: validated.paymentReference,
-          startDate: validated.startDate,
-          endDate: endDate,
-          status,
-          remarks: validated.remarks,
-        },
-      });
+      const newMemberships = [];
+      for (const m of membersToRenew) {
+        const newMembership = await tx.membership.create({
+          data: {
+            memberId: m.id,
+            coupleGroupId: finalCoupleGroupId,
+            membershipPlanId: validated.membershipPlanId || undefined,
+            customPlanName: validated.customPlanName,
+            amount: validated.amount,
+            registrationFee: 0.00, // Never charged on renewal
+            paymentMethod: validated.paymentMethod,
+            paymentReference: validated.paymentReference,
+            startDate: validated.startDate,
+            endDate: endDate,
+            status,
+            remarks: validated.remarks,
+          },
+        });
+        newMemberships.push(newMembership);
+      }
 
-      return { newMembership, partnerIdToSendReceipt };
+      const primaryMembership = newMemberships.find(m => m.memberId === memberId);
+      const partnerMembership = newMemberships.find(m => m.memberId !== memberId);
+
+      return { primaryMembership, partnerMembership, partnerIdToSendReceipt };
     });
 
     // Send receipt notifications outside transaction
     try {
-      await WhatsAppService.sendReceipt(memberId, result.newMembership.id);
-      if (validated.renewType === MemberType.COUPLE && result.partnerIdToSendReceipt) {
-        await WhatsAppService.sendReceipt(result.partnerIdToSendReceipt, result.newMembership.id);
+      if (result.primaryMembership) {
+        await WhatsAppService.sendReceipt(memberId, result.primaryMembership.id);
+      }
+      if (validated.renewType === MemberType.COUPLE && result.partnerIdToSendReceipt && result.partnerMembership) {
+        await WhatsAppService.sendReceipt(result.partnerIdToSendReceipt, result.partnerMembership.id);
       }
     } catch (wsError) {
       console.error("Failed to send WhatsApp receipts for renewal:", wsError);
