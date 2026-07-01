@@ -175,7 +175,7 @@ export async function createCoupleMemberAction(data: any) {
       });
 
       return { m1: member1, m2: member2, group: cpGroup, cpMembershipA, cpMembershipB };
-    });
+    }, { timeout: 20000 });
 
     // Send receipt notifications to both members
     try {
@@ -432,7 +432,7 @@ export async function renewMembershipAction(memberId: string, data: any) {
       const partnerMembership = newMemberships.find(m => m.memberId !== memberId);
 
       return { primaryMembership, partnerMembership, partnerIdToSendReceipt };
-    });
+    }, { timeout: 20000 });
 
     // Send receipt notifications outside transaction
     try {
