@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend client only if API key is present to prevent crashes on startup/import in environments where the key is not defined.
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 function validatePassword(password: string): string | null {
   if (password.length < 8) return "Password must be at least 8 characters.";
@@ -88,6 +89,11 @@ export async function sendForgotPasswordOtpAction(email: string) {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await prisma.adminOtp.create({ data: { email, otpHash, expiresAt } });
+
+    if (!resend) {
+      console.error("Resend API key is missing. Cannot send password reset OTP.");
+      return { error: "Email delivery service is not configured on this server." };
+    }
 
     await resend.emails.send({
       from: "FitHub Admin <onboarding@resend.dev>",

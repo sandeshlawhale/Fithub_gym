@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { MembershipService } from "@/services/membership.service";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import HistoryTableControls from "./HistoryTableControls";
 import ReceiptButton from "./ReceiptButton";
 import ExportPDFButton from "./ExportPDFButton";
+import { TableTransitionProvider, TableTransitionBody, HistorySkeletonRows, TablePagination } from "@/components/ui/table-transition";
 
 
 interface PageProps {
@@ -54,7 +54,8 @@ async function MembershipHistoryContent({ searchParams }: PageProps) {
   const nextPage = page < result.totalPages ? page + 1 : result.totalPages;
 
   return (
-    <div className="flex flex-col gap-lg w-full">
+    <TableTransitionProvider>
+      <div className="flex flex-col gap-lg w-full">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-md w-full">
         <div>
@@ -74,7 +75,7 @@ async function MembershipHistoryContent({ searchParams }: PageProps) {
         <HistoryTableControls plans={activePlans} />
 
         {/* Table Wrapper */}
-        <div className={`overflow-x-auto w-full max-w-full ${result.totalPages <= 1 ? "rounded-b-xl" : ""}`}>
+        <div className={`overflow-x-auto w-full max-w-full scrollbar-themed ${result.totalPages <= 1 ? "rounded-b-xl" : ""}`}>
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead className="bg-surface-container border-b border-outline-variant">
               <tr>
@@ -90,7 +91,8 @@ async function MembershipHistoryContent({ searchParams }: PageProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant font-body-md text-sm bg-surface">
-              {result.data.length === 0 ? (
+              <TableTransitionBody fallback={<HistorySkeletonRows />}>
+                {result.data.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="py-xl text-center text-on-surface-variant">
                     No transactions found matching the filters.
@@ -162,58 +164,22 @@ async function MembershipHistoryContent({ searchParams }: PageProps) {
                   );
                 })
               )}
+              </TableTransitionBody>
             </tbody>
           </table>
         </div>
 
-        {/* Pagination */}
-        {result.totalPages > 1 && (
-          <div className="p-lg border-t border-outline-variant bg-surface-container-lowest flex items-center justify-between rounded-b-xl">
-            <p className="font-label-md text-label-md text-on-surface-variant">
-              Showing <span className="text-on-background font-bold">{((page - 1) * 10) + 1}</span> to <span className="text-on-background font-bold">{Math.min(page * 10, result.total)}</span> of <span className="text-on-background font-bold">{result.total}</span> transactions
-            </p>
-            <div className="flex items-center gap-xs">
-              <Link
-                href={`/admin/membership-history?page=${prevPage}&search=${search}&status=${status}&planId=${planId}`}
-                prefetch={false}
-                className={`w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors ${
-                  page === 1 ? "pointer-events-none opacity-50" : ""
-                }`}
-              >
-                <ChevronLeft className="w-[18px] h-[18px]" />
-              </Link>
-              
-              {Array.from({ length: result.totalPages }, (_, idx) => idx + 1).map((p) => {
-                const isCurrent = p === page;
-                return (
-                  <Link
-                    key={p}
-                    href={`/admin/membership-history?page=${p}&search=${search}&status=${status}&planId=${planId}`}
-                    prefetch={false}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg font-label-md font-bold transition-colors ${
-                      isCurrent
-                        ? "bg-primary-container text-on-primary-container"
-                        : "border border-outline-variant text-on-surface-variant hover:bg-surface-container-high"
-                    }`}
-                  >
-                    {p}
-                  </Link>
-                );
-              })}
- 
-              <Link
-                href={`/admin/membership-history?page=${nextPage}&search=${search}&status=${status}&planId=${planId}`}
-                prefetch={false}
-                className={`w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors ${
-                  page === result.totalPages ? "pointer-events-none opacity-50" : ""
-                }`}
-              >
-                <ChevronRight className="w-[18px] h-[18px]" />
-              </Link>
-            </div>
-          </div>
-        )}
+        <TablePagination
+          currentPage={page}
+          totalPages={result.totalPages}
+          totalItems={result.total}
+          itemsPerPage={10}
+          baseUrl="/admin/membership-history"
+          searchParams={{ search, status, planId }}
+          itemLabel="transactions"
+        />
       </div>
     </div>
+    </TableTransitionProvider>
   );
 }

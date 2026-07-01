@@ -323,7 +323,6 @@ export default function MemberForm({ plans, defaultRegistrationFee = 200 }: Memb
             setValue("membershipPlanId", "");
             setValue("amount", 0);
             setValue("endDate", "");
-            unlinkPrimaryMember();
           }}
           className={`py-3 px-lg font-label-md text-sm font-bold border-b-2 cursor-pointer transition-colors ${memberType === MemberType.SINGLE ? "border-primary text-primary" : "border-transparent text-secondary hover:text-white"
             }`}
@@ -337,8 +336,6 @@ export default function MemberForm({ plans, defaultRegistrationFee = 200 }: Memb
             setValue("membershipPlanId", "");
             setValue("amount", 0);
             setValue("endDate", "");
-            unlinkPrimaryMember();
-            unlinkPartnerMember();
           }}
           className={`py-3 px-lg font-label-md text-sm font-bold border-b-2 cursor-pointer transition-colors ${memberType === MemberType.COUPLE ? "border-primary text-primary" : "border-transparent text-secondary hover:text-white"
             }`}

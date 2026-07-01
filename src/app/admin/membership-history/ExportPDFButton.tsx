@@ -110,10 +110,10 @@ export default function ExportPDFButton({ search, status, planId, plans }: Expor
 
       // 4. Generate Table
       const headers = [
-        ["Date", "Member", "Phone", "Email", "Partner Name", "Plan Name", "Period", "Days to Expire", "Method", "Reg. Fee", "Paid Amount"]
+        ["S.No.", "Date", "Member", "Phone", "Email", "Partner Name", "Plan Name", "Period", "Days to Expire", "Method", "Reg. Fee", "Paid Amount"]
       ];
 
-      const body = logs.map((log: any) => {
+      const body = logs.map((log: any, index: number) => {
         // Days to expire calculation
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -151,6 +151,7 @@ export default function ExportPDFButton({ search, status, planId, plans }: Expor
         const paidAmountStr = `Rs. ${(log.amount + log.registrationFee).toLocaleString("en-IN")}`;
 
         return [
+          (index + 1).toString(),
           logDateStr,
           log.memberName,
           log.memberPhone || "",
@@ -184,17 +185,18 @@ export default function ExportPDFButton({ search, status, planId, plans }: Expor
           fillColor: [248, 248, 248],
         },
         columnStyles: {
-          0: { cellWidth: 20 }, // Date
-          1: { cellWidth: 28 }, // Member Name
-          2: { cellWidth: 24 }, // Phone
-          3: { cellWidth: 36 }, // Email
-          4: { cellWidth: 28 }, // Partner Name
-          5: { cellWidth: 24 }, // Plan Name
-          6: { cellWidth: 36 }, // Period
-          7: { cellWidth: 22 }, // Days to Expire
-          8: { cellWidth: 16 }, // Method
-          9: { cellWidth: 16 }, // Reg. Fee
-          10: { cellWidth: 19 }, // Paid Amount
+          0: { cellWidth: 10 }, // S.No.
+          1: { cellWidth: 16 }, // Date
+          2: { cellWidth: 26 }, // Member Name
+          3: { cellWidth: 22 }, // Phone
+          4: { cellWidth: 34 }, // Email
+          5: { cellWidth: 28 }, // Partner Name
+          6: { cellWidth: 24 }, // Plan Name
+          7: { cellWidth: 36 }, // Period
+          8: { cellWidth: 22 }, // Days to Expire
+          9: { cellWidth: 16 }, // Method
+          10: { cellWidth: 16 }, // Reg. Fee
+          11: { cellWidth: 19 }, // Paid Amount
         },
         styles: {
           overflow: "linebreak",

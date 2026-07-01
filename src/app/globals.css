@@ -183,6 +183,7 @@ body {
 }
 .scrollbar-themed::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
 .scrollbar-themed::-webkit-scrollbar-track {
   background: transparent;

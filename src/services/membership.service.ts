@@ -180,7 +180,7 @@ export class MembershipService {
     if (txClient) {
       return execute(txClient);
     } else {
-      return prisma.$transaction(async (tx) => execute(tx));
+      return prisma.$transaction(async (tx) => execute(tx), { timeout: 15000 });
     }
   }
 
