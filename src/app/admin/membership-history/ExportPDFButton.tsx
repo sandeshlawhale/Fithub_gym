@@ -24,7 +24,7 @@ const STATUS_OPTIONS = [
   { value: "expiring_soon", label: "Expiring Soon" },
   { value: "upcoming", label: "Upcoming" },
   { value: "expired", label: "Expired" },
-  { value: "expired_this_month", label: "Expired This Month" },
+  { value: "expired_last_30_days", label: "Expired in Last 30 Days" },
 ];
 
 export default function ExportPDFButton({ search, status, planId, plans }: ExportPDFButtonProps) {

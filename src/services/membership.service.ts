@@ -335,18 +335,14 @@ export class MembershipService {
         conditions.push({
           endDate: { lt: todayStart },
         });
-      } else if (status === "expired_this_month") {
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        startOfMonth.setHours(0, 0, 0, 0);
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        endOfMonth.setHours(23, 59, 59, 999);
+      } else if (status === "expired_last_30_days") {
+        const thirtyDaysAgo = new Date(todayStart);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
         conditions.push({
           endDate: {
             lt: todayStart,
-            gte: startOfMonth,
-            lte: endOfMonth,
+            gte: thirtyDaysAgo,
           },
         });
       } else if (status === "upcoming") {

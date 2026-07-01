@@ -61,14 +61,14 @@ async function DashboardContent() {
       href: "/admin/membership-history?status=expiring_soon"
     },
     {
-      title: "Expired This Month",
+      title: "Expired Last 30 Days",
       value: summary.expiredMembers.toLocaleString("en-IN"),
       icon: UserX,
       trend: "2% down",
       trendType: "down",
       color: "text-error",
       bg: "bg-error/10",
-      href: "/admin/membership-history?status=expired_this_month"
+      href: "/admin/membership-history?status=expired_last_30_days"
     },
     {
       title: "Monthly Revenue",

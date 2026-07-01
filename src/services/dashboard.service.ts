@@ -17,6 +17,9 @@ export class DashboardService {
     const sevenDaysFromNow = new Date(todayStart);
     sevenDaysFromNow.setDate(todayStart.getDate() + 7);
 
+    const thirtyDaysAgo = new Date(todayStart);
+    thirtyDaysAgo.setDate(todayStart.getDate() - 30);
+
     // 1. Total Memberships in Current Month
     const totalMembers = await prisma.membership.count({
       where: {
@@ -54,14 +57,13 @@ export class DashboardService {
       },
     });
 
-    // 4. Expired This Month
+    // 4. Expired in Last 30 Days
     const expiredMembers = await prisma.membership.count({
       where: {
         member: { isDeleted: false },
         endDate: {
           lt: todayStart,
-          gte: startOfMonth,
-          lte: endOfMonth,
+          gte: thirtyDaysAgo,
         },
       },
     });
