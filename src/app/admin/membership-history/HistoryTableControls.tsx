@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useTransition, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, ChevronDown, X, Check } from "lucide-react";
+import { useTableTransition } from "@/components/ui/table-transition";
 
 interface PlanOption {
   id: string;
@@ -93,7 +94,7 @@ function FilterDropdown({
 export default function HistoryTableControls({ plans }: HistoryTableControlsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
+  const { startTransition } = useTableTransition();
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [status, setStatus] = useState(searchParams.get("status") || "");
