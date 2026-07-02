@@ -353,10 +353,6 @@ export class MembershipService {
           },
         });
       } else if (status === "expired") {
-        conditions.push({
-          endDate: { lt: todayStart },
-        });
-      } else if (status === "expired_last_30_days") {
         const thirtyDaysAgo = new Date(todayStart);
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -364,6 +360,15 @@ export class MembershipService {
           endDate: {
             lt: todayStart,
             gte: thirtyDaysAgo,
+          },
+        });
+      } else if (status === "inactive") {
+        const thirtyDaysAgo = new Date(todayStart);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        conditions.push({
+          endDate: {
+            lt: thirtyDaysAgo,
           },
         });
       } else if (status === "upcoming") {

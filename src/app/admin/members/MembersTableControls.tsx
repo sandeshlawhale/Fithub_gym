@@ -20,6 +20,7 @@ const STATUS_OPTIONS = [
   { value: "upcoming", label: "Upcoming", dot: "bg-yellow-400" },
   { value: "expired", label: "Expired", dot: "bg-red-500" },
   { value: "expiring_soon", label: "Expiring Soon", dot: "bg-amber-500" },
+  { value: "inactive", label: "Inactive", dot: "bg-zinc-500" },
 ];
 
 /** Extract approximate duration in days from a plan name for sorting (shortest first). */

@@ -264,7 +264,7 @@ async function MemberDetailContent({ params }: PageProps) {
             <div className="absolute top-0 right-0 p-4">
               <CreditCard className="w-12 h-12 text-[#F59E0B]/20" />
             </div>
-            <span className="text-xs text-primary-container font-semibold uppercase tracking-widest">Membership</span>
+            <span className="text-xs text-primary-container font-semibold uppercase tracking-widest">Last Membership</span>
 
             {latestMembership ? (() => {
               const today = new Date();

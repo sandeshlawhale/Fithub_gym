@@ -78,12 +78,27 @@ export class MemberService {
           },
         };
       } else if (status === "expired") {
+        const thirtyDaysAgo = new Date(todayStart);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
         where.memberships = {
           some: {
-            endDate: { lt: todayStart },
+            endDate: {
+              lt: todayStart,
+              gte: thirtyDaysAgo,
+            },
           },
           none: {
             endDate: { gte: todayStart },
+          },
+        };
+      } else if (status === "inactive") {
+        const thirtyDaysAgo = new Date(todayStart);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        where.memberships = {
+          none: {
+            endDate: { gte: thirtyDaysAgo },
           },
         };
       } else if (status === "upcoming") {
@@ -163,7 +178,13 @@ export class MemberService {
           if (start > today) {
             status = "UPCOMING";
           } else if (end < today) {
-            status = "EXPIRED";
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            if (end >= thirtyDaysAgo) {
+              status = "EXPIRED";
+            } else {
+              status = "INACTIVE";
+            }
           } else {
             const diffTime = end.getTime() - today.getTime();
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -241,7 +262,13 @@ export class MemberService {
       if (start > today) {
         status = "UPCOMING";
       } else if (end < today) {
-        status = "EXPIRED";
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        if (end >= thirtyDaysAgo) {
+          status = "EXPIRED";
+        } else {
+          status = "INACTIVE";
+        }
       } else {
         const diffTime = end.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));

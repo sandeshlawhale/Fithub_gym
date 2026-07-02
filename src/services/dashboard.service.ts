@@ -132,7 +132,13 @@ export class DashboardService {
           if (start > today) {
             status = "UPCOMING";
           } else if (end < today) {
-            status = "EXPIRED";
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            if (end >= thirtyDaysAgo) {
+              status = "EXPIRED";
+            } else {
+              status = "INACTIVE";
+            }
           } else {
             const diffTime = end.getTime() - today.getTime();
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
