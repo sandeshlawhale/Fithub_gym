@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { MembershipService } from "@/services/membership.service";
 import ReceiptControls from "./ReceiptControls";
-import { Dumbbell } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -120,11 +119,15 @@ export default async function ReceiptPage({ params }: PageProps) {
         <div>
           {/* Gym Header */}
           <div className="text-center flex flex-col items-center gap-xs">
-            <div className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center text-amber-500 mb-xs">
-              <Dumbbell className="w-5 h-5" />
+            <div className="flex flex-col items-center leading-none select-none">
+              <div className="font-sans font-black text-xl tracking-tight uppercase">
+                <span className="text-neutral-950">THE FITHUB</span>{" "}
+                <span className="text-primary-container">GYM</span>
+              </div>
+              <span className="text-[8px] font-semibold tracking-[0.22em] uppercase text-neutral-500 pl-[1px] mt-1.5">
+                Unisex Fitness Center
+              </span>
             </div>
-            <h1 className="text-xl font-black uppercase tracking-tight text-neutral-950 leading-none">The Fit Hub Gym</h1>
-            <p className="text-[9px] font-semibold text-neutral-500 uppercase tracking-widest leading-none">Unisex Fitness Center</p>
             
             <div className="w-full my-sm border-t border-dashed border-neutral-300 divider-line" />
             <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-950">Membership Payment Receipt</h2>
@@ -226,9 +229,9 @@ export default async function ReceiptPage({ params }: PageProps) {
               
               <div className="w-full my-xs border-t border-neutral-200 divider-line" />
               
-              <div className="flex justify-between items-center p-sm bg-neutral-900 text-white rounded-xl my-xs print:bg-neutral-100 print:text-black">
-                <span className="font-bold text-xs uppercase text-amber-400 print:text-neutral-900">Total Amount Paid</span>
-                <span className="font-black text-sm">₹{totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              <div className="flex justify-between items-center p-sm bg-amber-50/80 border border-amber-100 text-neutral-950 rounded-xl my-xs">
+                <span className="font-bold text-xs uppercase text-amber-800">Total Amount Paid</span>
+                <span className="font-black text-sm text-neutral-950">₹{totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
               </div>
 
               <div className="grid grid-cols-3 gap-xs text-[9px] mt-xs bg-neutral-100 p-sm rounded-lg border border-neutral-200 text-neutral-600 print:bg-transparent">
